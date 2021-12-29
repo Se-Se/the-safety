@@ -1,0 +1,86 @@
+{
+  "name": "@tencent/tea-app-sec-sandbox",
+  "version": "1.0.0",
+  "description": "The sec-sandbox tea app",
+  "main": "src/app.js",
+  "scripts": {
+    "dev": "tea dev",
+    "build": "tea build",
+    "scan": "tea scan",
+    "lint-staged": "lint-staged --allow-empty",
+    "lint-staged:js": "eslint --ext .js,.jsx,.ts,.tsx ",
+    "lint:js:check": "eslint --ext .js,.jsx,.ts,.tsx src/",
+    "lint:js:quiet": "eslint --quiet --ext .js,.jsx,.ts,.tsx",
+    "lint:js:fix": "eslint --fix --ext .js,.jsx,.ts,.tsx",
+    "lint:prettier:check": "prettier --check \"src/**/*\" --end-of-line auto",
+    "lint:prettier:fix": "prettier -c --write \"src/**/*\"",
+    "lint": "npm run lint:js:check"
+  },
+  "keywords": [
+    "tea",
+    "app",
+    "sec-sandbox"
+  ],
+  "engines": {
+    "typescript": ">3.3"
+  },
+  "lint-staged": {
+    "**/*.{js,jsx,ts,tsx}": "npm run lint-staged:js",
+    "**/*.{js,jsx,ts,tsx,less,json}": "prettier --write"
+  },
+  "husky": {
+    "hooks": {
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS",
+      "pre-commit": "lint-staged"
+    }
+  },
+  "license": "UNLICENSED",
+  "browserslist": [
+    "defaults",
+    "last 3 versions",
+    "not ie < 11"
+  ],
+  "dependencies": {
+    "@antv/g6": "^4.4.1",
+    "@tencent/tea-component": "^2.7.3",
+    "axios": "^0.24.0",
+    "base-64": "^1.0.0",
+    "braft-editor": "^2.3.9",
+    "core-js": "^3.6.5",
+    "final-form": "^4.20.6",
+    "history": "^4.9.0",
+    "lodash-es": "^4.17.21",
+    "moment": "^2.24.0",
+    "pinyin-pro": "^3.3.1",
+    "react": "^16.11.0",
+    "react-beautiful-dnd": "^13.1.0",
+    "react-cookies": "^0.1.1",
+    "react-dom": "^16.11.0",
+    "react-final-form-hooks": "^2.0.2",
+    "react-grid-layout": "^1.3.0",
+    "react-indexed-db": "^1.0.12",
+    "react-router-dom": "^5.2.0",
+    "regenerator-runtime": "^0.13.7"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^15.0.0",
+    "@commitlint/config-angular": "^15.0.0",
+    "@hot-loader/react-dom": "^16.11.0",
+    "@tencent/eslint-config-tencent": "^0.16.0",
+    "@tencent/tea-scripts": "^2.0.0",
+    "@tencent/tea-types": "^0.1.9",
+    "@types/lodash-es": "^4.17.5",
+    "@types/react": "^16.8.4",
+    "@types/react-dom": "^16.8.2",
+    "@types/react-router-dom": "^5.1.5",
+    "@types/webpack": "^4.4.32",
+    "@typescript-eslint/eslint-plugin": "^5.4.0",
+    "@typescript-eslint/parser": "^5.4.0",
+    "eslint": "^8.2.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "husky": "^7.0.4",
+    "lint-staged": "^12.0.2",
+    "prettier": "^2.4.1",
+    "typescript": "^3.8.2"
+  }
+}

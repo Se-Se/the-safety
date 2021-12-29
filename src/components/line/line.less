@@ -1,0 +1,39 @@
+.svg-line {
+  overflow: visible !important;
+  z-index: 90;
+}
+.active {
+  marker-end: url(#markerArrow);
+}
+
+.svg-line-marker {
+  stroke-width: 2px;
+  stroke-opacity: 1;
+}
+svg #markerArrow {
+  stroke: none;
+}
+
+.broken-line svg {
+  position: absolute;
+  overflow: visible;
+}
+
+.item,
+.info,
+.oper-list {
+  display: flex;
+}
+
+.broken-line {
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.active-line {
+  z-index: 99;
+}

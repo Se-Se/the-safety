@@ -1,0 +1,58 @@
+.partition-manager {
+    width: 220px;
+    background-color: #F9F9F9;
+    height: 100%;
+    float: left;
+    .tea-accordion__header {
+        height: 40px;
+        line-height: 40px;
+        .tea-accordion__header-title {
+            margin-left: 20px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .arrow-icon {
+            float: right;
+            margin: 12px 24px;
+        }
+    }
+    .manager-body {
+        padding: 10px 20px;
+        background-color: #E6E7EB;
+        .manager-right {
+            display: block;
+            margin-bottom: 10px;
+            cursor: pointer;
+            color: #006EFF;
+            &:hover {
+                text-decoration: none;
+            }
+        }
+    }
+    .manager-card {
+        margin-bottom: 10px;
+        background: #FFFFFF;
+        border: 1px solid #DDDDDD;
+        cursor: pointer;
+
+        .card-icon {
+            vertical-align: middle;
+            width: 22px;
+            height: 21px;
+            margin: 0 16px;
+        }
+        .card-text {
+            line-height: 50px;
+        }
+        &:hover {
+            border-color: #006EFF;
+        }
+        &.drag {
+            cursor: all-scroll;
+            box-shadow: 0 2px 4px 0 rgba(0,0,0,0.10);
+        }
+    }
+    .group-body {
+        padding: 20px 20px 10px;
+    }
+}

@@ -1,0 +1,66 @@
+.area-content {
+  position: absolute;
+  background: transparent;
+  width: 100%;
+  height: 100%;
+  z-index: 9;
+  .partition {
+    border: 1px solid transparent;
+    cursor: grab;
+    .delete-icon {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      cursor: pointer;
+      z-index: 9;
+      display: none;
+    }
+    &:hover {
+      .delete-icon {
+        display: block;
+      }
+      border-style: solid;
+      border-color: #006efe;
+    }
+    &.edit {
+      background: rgba(40, 119, 255, 0.05);
+      border-style: dashed;
+      border-color: rgba(255, 255, 255, 0.3);
+      &:hover {
+        border-style: dashed;
+        border-color: #006efe;
+      }
+    }
+    &.select {
+      border-style: dashed;
+      border-color: #006efe;
+    }
+    &.last {
+      border-style: solid;
+      border-color: #ffffff;
+    }
+    &.track:hover {
+      border-color: transparent;
+    }
+    &.track-highlight {
+      border-color: #ffffff;
+      &:hover {
+        border-color: #ffffff;
+      }
+    }
+    &.track-edit:hover {
+      border-color: #006efe;
+    }
+    &.scene:hover {
+      border-color: transparent;
+    }
+  }
+  .react-grid-item > .react-resizable-handle {
+    &:after {
+      border-color: #ffffff;
+    }
+    &:hover:after {
+      border-color: #006efe;
+    }
+  }
+}

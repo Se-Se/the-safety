@@ -1,0 +1,152 @@
+.elem,
+.item {
+  position: relative;
+}
+
+.main-content {
+  width: auto;
+  margin-bottom: 9px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.items {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.items {
+  counter-reset: seq; /* 重置计数器成0 */
+}
+
+.d-container {
+  counter-increment: seq; /* 增加计数器值 */
+}
+
+.elem:before,
+.item:before {
+  content: counter(seq); /* 显示计数器 */
+  display: block;
+  width: 14px;
+  height: 14px;
+  border: 1px solid #bbbbbb;
+  border-radius: 50%;
+  text-align: center;
+  color: #bbbbbb;
+  line-height: 14px;
+  position: absolute;
+  top: 9px;
+  left: 12px;
+  z-index: 1;
+}
+
+.item:last-child:before {
+  content: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNyAyMyIgY2xhc3M9ImRlc2lnbi1pY29uZm9udCI+CiAgPGcgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIj4KICAgIDxwYXRoIGQ9Ik0xMS4wNzEwNTg3LDEuMDI1ODg1IEMxMS44MTQ2MzU2LDAuODM0Njc5NTE5IDEyLjYzMTE1NDksMC45MjcxMzkwNTEgMTMuMzQ0MzY5OCwxLjM0ODU4NDIxIEMxMy43ODAwNDUzLDEuNjA2MDI4ODMgMTQuMTQzNTE2OCwxLjk2OTUwMDM2IDE0LjQwMDk2MTQsMi40MDUxNzU4NiBMMTQuNDAwOTYxNCwyLjQwNTE3NTg2IEwyMi43MTQyNDY0LDE2LjQ3MzgxMjEgQzIzLjEzNTY5MTYsMTcuMTg3MDI3IDIzLjIyODE1MTEsMTguMDAzNTQ2MyAyMy4wMzY5NDU2LDE4Ljc0NzEyMzEgQzIyLjg0NTc0MDIsMTkuNDkwNyAyMi4zNzA4Njk3LDIwLjE2MTMzNDQgMjEuNjU3NjU0OCwyMC41ODI3Nzk2IEMyMS4xOTU0MjUsMjAuODU1OTE1NCAyMC42NjgzNjQ5LDIxIDIwLjEzMTQ2NjgsMjEgTDIwLjEzMTQ2NjgsMjEgTDMuNTA0ODk2NzksMjEgQzIuNjc2NDY5NjYsMjEgMS45MjY0Njk2NiwyMC42NjQyMTM2IDEuMzgzNTc2NDUsMjAuMTIxMzIwMyBDMC44NDA2ODMyMjcsMTkuNTc4NDI3MSAwLjUwNDg5Njc4OSwxOC44Mjg0MjcxIDAuNTA0ODk2Nzg5LDE4IEMwLjUwNDg5Njc4OSwxNy40NjMxMDE5IDAuNjQ4OTgxNDE4LDE2LjkzNjA0MTkgMC45MjIxMTcyMDQsMTYuNDczODEyMSBMMC45MjIxMTcyMDQsMTYuNDczODEyMSBMOS4yMzU0MDIyMywyLjQwNTE3NTg2IEM5LjY1Njg0NzM5LDEuNjkxOTYwOTcgMTAuMzI3NDgxOCwxLjIxNzA5MDQ4IDExLjA3MTA1ODcsMS4wMjU4ODUgWiIgc3Ryb2tlPSIjRkZGIiBzdHJva2Utd2lkdGg9IjIiIGZpbGw9IiNFNDQzNDUiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDEuODI2NDQ1IDEpIi8+CiAgICA8dGV4dCBmb250LWZhbWlseT0iTWljcm9zb2Z0WWFIZWktQm9sZCwgTWljcm9zb2Z0IFlhSGVpIiBmb250LXNpemU9IjE0IiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0iI0ZGRiIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMS44MjY0NDUgMSkiPgogICAgICA8dHNwYW4geD0iNyIgeT0iMTgiPu+8gTwvdHNwYW4+CiAgICA8L3RleHQ+CiAgPC9nPgo8L3N2Zz4K);
+  border: none;
+  width: 24px;
+  height: auto;
+  left: 8px;
+  top: 6px;
+}
+
+.item:first-child:before {
+  content: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyOSAyNiIgY2xhc3M9ImRlc2lnbi1pY29uZm9udCI+PGcgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIj48cGF0aCBkPSJNMTMuODk4IDIuMDI2YTMgMyAwIDAxMy4zMyAxLjM4aDBsOC4zMTMgMTQuMDY4YTIuOTkgMi45OSAwIDAxLjMyMiAyLjI3M0EzIDMgMCAwMTIyLjk1OCAyMmgwSDYuMzNhMi45OSAyLjk5IDAgMDEtMi4xMjEtLjg3OSAzIDMgMCAwMS0uNDYxLTMuNjQ4aDBsOC4zMTMtMTQuMDY4YTIuOTkgMi45OSAwIDAxMS44MzYtMS4zOHoiIGZpbGw9IiNFNDQzNDUiIHN0cm9rZT0iI0ZGRiIgc3Ryb2tlLXdpZHRoPSIyIi8+PHBhdGggZmlsbD0iI0ZGRiIgZD0iTTE0LjgyNiAxMGEyIDIgMCAxMDAgNCAyIDIgMCAxMDAtNHpNMTQuODI2IDE0YTQgNCAwIDAxNCA0aC04YTQgNCAwIDAxNC00eiIvPjxwYXRoIHN0cm9rZT0iI0ZGRiIgZmlsbD0iI0U0NDM0NSIgZD0iTTE0LjgxNCAxNi40OWwzLjM1IDcuODg5LTMuNTIzLTEuMzg3LTMuNDE3IDEuMzcyek0xOS4wNDcgMTIuMjg2bDguNDEzLTEuNjMzLTMuMi0yLjA5LS42OTQtMy42NTZ6TTEwLjQxMyAxMi4yODZMMiAxMC42NTNsMy4yLTIuMDkuNjkzLTMuNjU2eiIvPjwvZz48L3N2Zz4=);
+  border: none;
+  width: 24px;
+  height: auto;
+  left: 8px;
+  top: 6px;
+}
+
+.item:after,
+.elem:after {
+  width: 0px;
+  height: calc(100% - 22px);
+  content: '';
+  position: absolute;
+  border-left: 1px dashed #bbbbbb;
+  left: 20px;
+  top: 28px;
+}
+
+.elem-active:before,
+.item-active:before,
+.elem-active:first-child:before,
+.item-active:first-child::before {
+  left: 30px !important;
+}
+
+.elem:last-child:after,
+.item:last-child:after {
+  content: none !important;
+}
+
+.elem-active:after,
+.item-active:after,
+.elem-active:last-child:after,
+.item-active:last-child:after {
+  content: none !important;
+}
+
+.content {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 5px;
+  align-items: center;
+  justify-content: space-between;
+  margin-left: 56px;
+}
+
+.grid-content {
+  margin-left: 56px;
+  color: #888888;
+}
+
+.content > .tea-btn--icon {
+  padding: 0;
+}
+
+.text {
+  font-weight: 500;
+  max-width: 100px;
+  color: black;
+}
+.container {
+  position: relative;
+}
+
+.trash-bin {
+  width: auto;
+  min-width: 16px;
+  margin-right: 5px;
+  height: 16px;
+  background-repeat: no-repeat;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' class='design-iconfont'%3E%3Cpath d='M9.27924078,1 C9.70967119,1 10.09181,1.27543009 10.2279241,1.68377223 L10.5612574,2.68377223 C10.5962532,2.78875961 10.6128672,2.89544849 10.6128454,3.00034669 L14,3 L14,4 L13,4 L13,13 C13,13.5522847 12.5522847,14 12,14 L4,14 C3.44771525,14 3,13.5522847 3,13 L3,4 L2,4 L2,3 L5.38742589,3 L5.38742589,3 C5.38742589,2.8925179 5.40475377,2.7857387 5.43874259,2.68377223 L5.77207592,1.68377223 C5.90818997,1.27543009 6.29032881,1 6.72075922,1 L9.27924078,1 Z M12,4 L4,4 L4,13 L12,13 L12,4 Z M7,6 L7,11 L6,11 L6,6 L7,6 Z M10,6 L10,11 L9,11 L9,6 L10,6 Z M9.27924078,2 L6.72075922,2 L6.38742589,3 L9.61257411,3 L9.27924078,2 Z' fill-opacity='.3' fill='%23000' fill-rule='evenodd'/%3E%3C/svg%3E%0A");
+}
+
+.d-container {
+  width: 100%;
+  position: relative;
+  margin-bottom: 10px;
+  padding-top: 8px;
+}
+
+.bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #f9f9f9;
+}
+
+.trash-bin {
+  width: auto;
+  height: 16px;
+  background-repeat: no-repeat;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' class='design-iconfont'%3E%3Cpath d='M9.27924078,1 C9.70967119,1 10.09181,1.27543009 10.2279241,1.68377223 L10.5612574,2.68377223 C10.5962532,2.78875961 10.6128672,2.89544849 10.6128454,3.00034669 L14,3 L14,4 L13,4 L13,13 C13,13.5522847 12.5522847,14 12,14 L4,14 C3.44771525,14 3,13.5522847 3,13 L3,4 L2,4 L2,3 L5.38742589,3 L5.38742589,3 C5.38742589,2.8925179 5.40475377,2.7857387 5.43874259,2.68377223 L5.77207592,1.68377223 C5.90818997,1.27543009 6.29032881,1 6.72075922,1 L9.27924078,1 Z M12,4 L4,4 L4,13 L12,13 L12,4 Z M7,6 L7,11 L6,11 L6,6 L7,6 Z M10,6 L10,11 L9,11 L9,6 L10,6 Z M9.27924078,2 L6.72075922,2 L6.38742589,3 L9.61257411,3 L9.27924078,2 Z' fill-opacity='.3' fill='%23000' fill-rule='evenodd'/%3E%3C/svg%3E%0A");
+}

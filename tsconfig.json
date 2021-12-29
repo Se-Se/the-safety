@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "lib": ["es2017", "dom"],
+    "baseUrl": ".",
+    "paths": {
+      "@tea/app": ["app"],
+      "@tea/app/*": ["app/*"],
+      "@src/*": ["./src/*"]
+    },
+    "checkJs": true,
+    "jsx": "react",
+    "noImplicitAny": false,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "allowJs": true,
+    "outDir": ".js-out",
+    "experimentalDecorators": true
+  },
+  "exclude": ["dist", "node_modules"]
+}

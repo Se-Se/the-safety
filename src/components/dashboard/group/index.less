@@ -1,0 +1,41 @@
+.group-content {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    z-index: 5;
+    .group-unit {
+        border: 2px solid #0536BF;
+        height: 100%;
+        margin: -10px;
+        .delete-icon {
+            position: absolute;
+            top: -17px;
+            right: -17px;
+            cursor: pointer;
+            z-index: 10;
+            display: none;
+        }
+        &:hover {
+            .delete-icon {
+                display: block;
+            }
+        }
+        .group-title {
+            font-size: 16px;
+            color: #FFFFFF;
+            line-height: 50px;
+            text-align: center;
+            font-weight: bold;
+            height: 50px;
+        }
+    }
+    .react-grid-item > .react-resizable-handle.react-resizable-handle-se {
+        bottom: 10px;
+        right: -8px;
+        &:after {
+            border-color: #0536BF;
+        }
+    }
+}

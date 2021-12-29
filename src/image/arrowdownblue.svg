@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="16px" height="16px" viewBox="0 0 16 16" version="1.1">
+  <title>icon/arrow-down备份 3</title>
+  <g id="页面" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+    <g id="图标" transform="translate(-552.000000, -307.000000)">
+      <g id="icon/arrow-down备份-3" transform="translate(552.000000, 307.000000)">
+        <path d="M8.04254464,4.30154313 L8.12693728,4.31624519 C8.21002023,4.33785735 8.28863525,4.38111588 8.35382952,4.44602427 L8.35382952,4.44602427 L14.2244263,10.3074544 L13.5173195,11.0145612 L8.00044177,5.50576807 L2.50054855,11.0138799 L1.79344177,10.3067731 L7.64665646,4.446608 C7.75495446,4.33794824 7.90079753,4.28959703 8.04254464,4.30154313 Z" id="icon/chevron-down" fill="#006EFF" transform="translate(8.008934, 7.657165) scale(1, -1) translate(-8.008934, -7.657165) "></path>
+        <rect id="矩形" x="0" y="0" width="16" height="16"></rect>
+      </g>
+    </g>
+  </g>
+</svg>

@@ -1,0 +1,52 @@
+.dashboard-content {
+  position: relative;
+  overflow: auto;
+  width: calc(100% - 220px);
+  height: 100%;
+  background-color: #020732;
+  left: 0;
+  .react-grid-layout {
+    height: 100% !important;
+  }
+  &.edit {
+    margin: 0;
+    height: 100%;
+  }
+  &.group {
+    .group-content {
+      z-index: 29;
+    }
+  }
+
+  .react-grid-placeholder {
+    background: rgba(40, 119, 255, 0.1);
+  }
+}
+
+.path-marker {
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  width: 100%;
+  height: 100%;
+  z-index: 80;
+  pointer-events: none;
+  background: transparent;
+  & img {
+    position: absolute;
+    width: 24px;
+    height: 20px;
+    transform: translate(-50%, -50%);
+  }
+}
+
+.line-container {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  background: transparent;
+  z-index: 10;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}

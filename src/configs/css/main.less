@@ -1,0 +1,117 @@
+.main-content-body {
+  width: 100%;
+}
+.main-content-body {
+  .tea-layout__content-body-inner {
+    width: 100%;
+    max-width: none;
+    .main-card-body {
+      float: left;
+      width: 100%;
+      padding: 0;
+      margin-top: 20px;
+      .main-trade-name {
+        height: 20px;
+        margin-bottom: 20px;
+        font-size: 16px;
+        font-weight: bold;
+        color: #000000;
+        letter-spacing: 0;
+      }
+      .trade-group {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: left;
+      }
+      .main-card-item {
+        border: 0;
+        width: 325px;
+        height: 194px;
+        word-wrap: break-word;
+        overflow: hidden;
+        position: relative;
+        margin: 0 20px 20px 0;
+        background: #ffffff;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2);
+
+        .main-card-img {
+          height: 60px;
+          padding: 0;
+        }
+        .main-item-body {
+          padding: 10px 20px;
+          .des-content {
+            font-weight: normal;
+            font-size: 12px;
+            color: #333333;
+            line-height: 18px;
+            word-break: break-all;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+          }
+          .tea-card__title {
+            margin-bottom: 10px;
+            .tea-h3 {
+              height: 22px;
+              font-weight: bolder;
+              font-size: 16px;
+              color: #000000;
+              letter-spacing: 0;
+            }
+          }
+          .tea-card__content {
+            height: 54px;
+            overflow-y: auto;
+          }
+        }
+        .tea-card__footer {
+          border: 0;
+          .tea-btn {
+            position: absolute;
+            right: 20px;
+            bottom: 10px;
+          }
+          .main-item-edit-btn {
+            font-weight: normal;
+            font-size: 12px;
+            color: #004dff;
+            height: 17px;
+            line-height: 17px;
+          }
+          .main-edit-btn {
+            right: 54px;
+            bottom: 10px;
+          }
+        }
+      }
+    }
+  }
+}
+.clear-tea-h2 {
+  .tea-h2 {
+    display: none !important;
+  }
+}
+
+.pic-modal-container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  width: 100%;
+  max-height: 600px;
+  overflow-y: auto;
+  justify-content: space-between;
+  .recommend-svg-item {
+    cursor: pointer;
+    :hover {
+      background-color: #006efe;
+    }
+  }
+  .recommend-svg-item.svg-chose {
+    background-color: #006efe;
+  }
+}
