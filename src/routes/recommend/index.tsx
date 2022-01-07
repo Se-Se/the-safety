@@ -6,10 +6,12 @@ import AddRecommendPage from './addRecommend';
 import RecommendsPage from './recommend';
 const { Body } = Layout;
 
+// 添加 页面
 function AddPage() {
   return <AddRecommendPage></AddRecommendPage>;
 }
 
+// 展示页面
 function Overview() {
   return <RecommendsPage></RecommendsPage>;
 }

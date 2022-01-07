@@ -23,7 +23,7 @@ const PartitionCard: React.FC<{
   let joinBusiness = [];
   if (props.business) {
     joinBusiness = partData.data.filter(d => {
-      return d['select'] && props.business.indexOf(d['text']) > -1;
+      return d.select && props.business.indexOf(d.text) > -1;
     });
   }
   const history = useHistory();
@@ -119,11 +119,11 @@ const PartitionCard: React.FC<{
       <Row className="part-content">
         {isGap
           ? partData.data.map((item, index) => {
-              if (props.gapBubble && item.gapData) {
-                return (
+            if (props.gapBubble && item.gapData) {
+              return (
                   <div
                     key={index}
-                    onClick={ev => {
+                    onClick={() => {
                       setShowGap(item.gapData.gapId);
                     }}
                   >
@@ -149,7 +149,7 @@ const PartitionCard: React.FC<{
                             <div className="against-part">
                               <div
                                 className="hide-title"
-                                onClick={ev => {
+                                onClick={() => {
                                   handleAgainstShow(item.gapData.gapId);
                                 }}
                               >
@@ -180,19 +180,19 @@ const PartitionCard: React.FC<{
                       {partUnit(index)}
                     </Bubble>
                   </div>
-                );
-              } else {
-                return <div key={index}>{partUnit(index)}</div>;
-              }
-            })
+              );
+            } else {
+              return <div key={index}>{partUnit(index)}</div>;
+            }
+          })
           : partData.data.map((item, index) => {
               if (item.select) {
-                if (item['data'] && item['data'].length) {
-                  return (
+              if (item.data && item.data.length) {
+                return (
                     <Tooltip
                       title={
                         <div className="data-content">
-                          {item['data'].map(it => {
+                          {item.data.map(it => {
                             return (
                               <div className="data-unit">
                                 <img src={require('@src/image/data.svg')} className="data-icon" />
@@ -205,14 +205,14 @@ const PartitionCard: React.FC<{
                     >
                       {partUnit(index)}
                     </Tooltip>
-                  );
-                } else {
-                  return partUnit(index);
-                }
+                );
               } else {
-                return null;
+                return partUnit(index);
               }
-            })}
+            } else {
+              return null;
+            }
+          })}
       </Row>
     </div>
   );

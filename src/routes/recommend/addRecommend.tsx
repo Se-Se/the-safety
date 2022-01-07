@@ -1,11 +1,24 @@
 import EditorBraft from '@src/components/braft';
-import { areaOptions, levelOptions } from '@src/components/tableCommon/globalData';
+import { AREA_OPTIONS, IMG_NAMES, LEVEL_OPTIONS } from '@src/components/tableCommon/globalData';
 import { useApi } from '@src/services/api/useApi';
 import { useHistory } from '@tea/app';
-import { Button, Card, Form, Input, Justify, Layout, message, Select, Table } from '@tencent/tea-component';
+import {
+  Bubble,
+  Button,
+  Card,
+  Form,
+  Icon,
+  Input,
+  Justify,
+  Layout,
+  message,
+  Modal,
+  Select,
+  Table,
+} from '@tencent/tea-component';
+import { pinyin } from 'pinyin-pro';
 import React, { useEffect, useRef, useState } from 'react';
 import cookie from 'react-cookies';
-import AddPic from '@src/components/formItemAddPic';
 
 const { Body, Content } = Layout;
 
@@ -26,23 +39,30 @@ const AddRecommendPage: React.FC = () => {
   const { getByIndex } = useApi('recommend');
   const [isAdd, setIsAdd] = useState(true);
   const [canEdit, setCanEdit] = useState(false);
+
   const [category, setCategory] = useState('');
   const [dangerLevel, setDangerLevel] = useState('');
   const val = cookie.load('safetyTrade');
   const [trade] = useState(val);
+
   const [theTitle, setTheTitle] = useState('');
   const [theRecommendId, setTheRecommendId] = useState('');
   const [theArea, setTheArea] = useState('');
-  const [doSave, setDoSave] = useState(false);
-  const [picName, setPicName] = useState('');
 
+  const [doSave, setDoSave] = useState(false);
+  const [picV, setPicV] = useState(false);
+  const [picName, setPicName] = useState('');
+  const [choseItem, setChoseItem] = useState(null);
+  const [theClick, setTheClick] = useState('');
+  const [saveFlag, setSaveFlag] = useState(false);
+
+  // 文本编辑器默认初始话内容
   const editBaseData =
     '<p><strong>背景：</strong></p><p></p><p></p><p></p><p></p><p><strong>过程描述：</strong></p><p></p><p></p><p></p><p></p><p></p><p><strong>改进建议：</strong></p><p></p><p></p><p></p><p></p><p></p><p></p>';
   const [editData, setEditData] = useState(editBaseData);
 
   const history = useHistory();
   const braftRef = useRef(null);
-  const [saveFlag, setSaveFlag] = useState(false);
 
   // 首次打开页面加载 第二个参数需要是空数组保证只加载一次
   useEffect(() => {
@@ -61,6 +81,7 @@ const AddRecommendPage: React.FC = () => {
     }
   }, []);
 
+  // 初始话数据
   const initData = (data: any) => {
     setTheArea(data.theArea);
     setCategory(data.category);
@@ -74,7 +95,7 @@ const AddRecommendPage: React.FC = () => {
   // 获取select选择的名称
   const getAreaName = () => {
     let name = '';
-    areaOptions.map(item => {
+    AREA_OPTIONS.map(item => {
       if (item.value === theArea) {
         name = item.text;
       }
@@ -101,10 +122,13 @@ const AddRecommendPage: React.FC = () => {
       return false;
     } else if (picName.trim() === '') {
       return false;
+    } else if (theTitle.trim() === '') {
+      return false;
     }
     return true;
   };
 
+  // editData, doSave, saveFlag 变化时执行的回调
   useEffect(() => {
     if (editData && doSave) {
       handleSave();
@@ -152,9 +176,8 @@ const AddRecommendPage: React.FC = () => {
   };
   // 点击保存按钮
   const save = () => {
-    setDoSave(true);
     setSaveFlag(!saveFlag);
-    console.log(doSave, editData);
+    setDoSave(true);
 
     handleEditSave(braftRef.current.getValue().toHTML());
   };
@@ -178,18 +201,43 @@ const AddRecommendPage: React.FC = () => {
 
   // 文本编辑器 cirl + s 保存的回调
   const handleEditSave = (data: any) => {
+    console.log(data, 12321);
     setEditData(data);
   };
+  // 点击打卡添加图片
+  const openPic = () => {
+    setPicV(true);
+    setTheClick('');
+  };
+  // 添加图片modal关闭的回调
+  const closePic = () => {
+    setPicV(false);
+    setTheClick('');
+    setChoseItem(null);
+  };
 
-  const handleAddPicSave = (data: any) => {
-    setPicName(data);
+  // 获取icon fn
+  const getIcon = type => {
+    if (type) {
+      const typePinyin = pinyin(type, { toneType: 'none', type: 'array' }).join('').toLowerCase();
+      return require('@src/image/' + typePinyin + '.svg');
+    } else {
+      return '';
+    }
   };
-  const addPicConfig = {
-    canEdit: canEdit,
-    picName: picName,
-    doSave: doSave,
-    save: (data: any) => handleAddPicSave(data),
+  // 点击svgicon的fn
+  const handleSvgClick = (data: string, index: number) => {
+    console.log(data);
+    setTheClick(data);
+    setChoseItem(index);
   };
+
+  // 保存图片的回调
+  const handleSavePic = () => {
+    setPicName(theClick);
+    setPicV(false);
+  };
+
   return (
     <Layout>
       <Body>
@@ -224,6 +272,35 @@ const AddRecommendPage: React.FC = () => {
             </Table.ActionPanel>
             <Card>
               <Card.Body>
+                <Modal visible={picV} caption="选择分类图片" disableCloseIcon maskClosable onClose={closePic}>
+                  <Modal.Body>
+                    <Card>
+                      <Card.Body>
+                        <div className="recommend-svg-container">
+                          {(IMG_NAMES || []).map((item, index) => {
+                            return (
+                              <div
+                                className={index === choseItem ? ' recommend-svg-item svg-chose' : 'recommend-svg-item'}
+                                key={index}
+                                onClick={() => handleSvgClick(item, index)}
+                              >
+                                <img src={getIcon(item)} className="part-icon" />
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </Card.Body>
+                    </Card>
+                  </Modal.Body>
+                  <Modal.Footer>
+                    <Button type="primary" onClick={handleSavePic}>
+                      确定
+                    </Button>
+                    <Button type="weak" onClick={closePic}>
+                      取消
+                    </Button>
+                  </Modal.Footer>
+                </Modal>
                 <Form className="add-recommend">
                   <Form.Item
                     label="所属分区"
@@ -233,7 +310,7 @@ const AddRecommendPage: React.FC = () => {
                     <Select
                       disabled={!canEdit}
                       appearance="button"
-                      options={areaOptions}
+                      options={AREA_OPTIONS}
                       value={theArea}
                       onChange={value => handleValueChange(value, setTheArea)}
                       placeholder="请选择所属分区"
@@ -257,7 +334,25 @@ const AddRecommendPage: React.FC = () => {
                       placeholder="请输入所属分类"
                     />
                   </Form.Item>
-                  <AddPic {...addPicConfig}></AddPic>
+                  <Form.Item
+                    label="选择图标"
+                    message={doSave || picName ? (picName ? '已选择图标' : '请选择图标') : null}
+                    status={doSave || picName ? (picName ? 'success' : 'error') : null}
+                  >
+                    <Bubble content="添加图标">
+                      <Button type="weak" onClick={openPic} disabled={!canEdit}>
+                        <Icon type="plus" />
+                      </Button>
+                    </Bubble>
+                    {picName ? (
+                      <div
+                        className="pic-content"
+                        style={{ position: 'absolute', left: '90px', display: 'inline-block' }}
+                      >
+                        <img src={getIcon(picName)} className="part-icon" style={{ width: '50px', height: '30px' }} />
+                      </div>
+                    ) : null}
+                  </Form.Item>
                   <Form.Item
                     label="风险级别"
                     message={doSave ? (dangerLevel ? null : '请选择风险级别') : null}
@@ -266,7 +361,7 @@ const AddRecommendPage: React.FC = () => {
                     <Select
                       disabled={!canEdit}
                       appearance="button"
-                      options={levelOptions}
+                      options={LEVEL_OPTIONS}
                       value={dangerLevel}
                       onChange={value => handleValueChange(value, setDangerLevel)}
                       placeholder="请选择风险级别"

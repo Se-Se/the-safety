@@ -13,10 +13,12 @@ export default function RecommendItem(props) {
     setTheData({ ...props.theData });
   }, [props.theData]);
 
+  // 点击进入改进建议编辑页面
   const handleItemClck = data => {
     console.log('data', data);
     history.push(`/recommend/${data.recommendId}`);
   };
+  // 根据等级划分颜色
   const handletitleColor = data => {
     let color = '';
     switch (data) {
@@ -34,6 +36,7 @@ export default function RecommendItem(props) {
     }
     return color;
   };
+  //theData变化时的回调
   useEffect(() => {
     let h = document.getElementsByClassName('cagegory-items-content');
     let arr = [];
@@ -43,7 +46,7 @@ export default function RecommendItem(props) {
     setHArr([...arr]);
   }, [theData]);
 
-  useEffect(() => {}, []);
+  //  获取icon的fn
   const getIcon = type => {
     if (type) {
       const typePinyin = pinyin(type, { toneType: 'none', type: 'array' }).join('').toLowerCase();
@@ -85,7 +88,7 @@ export default function RecommendItem(props) {
                       if (index === 0) {
                         points = '30,-50  90,-50';
                       } else {
-                        points = `30,-50 30,75 90,75`;
+                        points = '30,-50 30,75 90,75';
                         top = 50 * (index - 1);
                       }
 

@@ -30,10 +30,7 @@ const GroupCard: React.FC<{
         position[k] = item[k];
       });
       return (
-        <div
-          key={index}
-          data-grid={position}
-        >
+        <div key={index} data-grid={position}>
           <div className="group-unit">
             <div
               className="delete-icon"
@@ -59,11 +56,12 @@ const GroupCard: React.FC<{
 
   const drag = (_, layoutItem) => {
     const data = {
-      x: layoutItem['x'],
-      y: layoutItem['y'],
+      x: layoutItem.x,
+      y: layoutItem.y,
       w: 200,
       h: 6,
       title: '大区标题',
+      id: 'group_id' + new Date().getTime(),
     };
     props.onChange('group', 'add', data);
   };

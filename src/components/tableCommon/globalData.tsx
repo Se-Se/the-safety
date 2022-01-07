@@ -2,29 +2,21 @@ type Options = {
   value: string;
   text: string;
 };
-export const systemOption: Options[] = [
-  { value: '第三方系统', text: '第三方系统' },
-  { value: '内部系统', text: '内部系统' },
-];
 
-export const systemKOptions: Options[] = [
-  { value: 'all', text: '所以类型' },
-  { value: '第三方系统', text: '第三方系统' },
-  { value: '内部系统', text: '内部系统' },
-];
+// 全局设定的固定的数据变量
 
-export const systemOrPropertyOption: Options[] = [
+export const SYSTEM_PROPERTY_OPTION: Options[] = [
   { value: 'all', text: '所有分类' },
   { value: 'system', text: '系统' },
   { value: 'property', text: '资产' },
 ];
-export const levelOptions: Options[] = [
+export const LEVEL_OPTIONS: Options[] = [
   { value: 'low', text: '低风险' },
   { value: 'mid', text: '中风险' },
   { value: 'high', text: '高风险' },
 ];
 
-export const propertyOption: any = [
+export const PROPERTY_OPTION: any = [
   {
     label: '网络',
     value: '网络',
@@ -70,7 +62,7 @@ export const propertyOption: any = [
   },
 ];
 
-export const areaOptions: Options[] = [
+export const AREA_OPTIONS: Options[] = [
   { text: '互联网边界接入区', value: 'area_1' },
   { text: '互联网服务区', value: 'area_2' },
   { text: '核心生产区', value: 'area_3' },
@@ -78,7 +70,7 @@ export const areaOptions: Options[] = [
   // { value: 'diy', text: '其他' },
 ];
 
-export const imgNames: string[] = [
+export const IMG_NAMES: string[] = [
   'atmzhongduan',
   'baoleiji',
   'fanghuoqiang',
@@ -103,7 +95,7 @@ export const imgNames: string[] = [
   'youjianfuwuqi',
 ];
 
-export const mainImages: string[] = [
+export const MAIN_IMAGES: string[] = [
   'main_pic1.png',
   'main_pic2.png',
   'main_pic3.png',
@@ -121,13 +113,13 @@ export const mainImages: string[] = [
   'main_pic15.png',
 ];
 
-export const tradeOptions: Options[] = [
+export const TRADE_OPTIONS: Options[] = [
   { text: '金融', value: '金融' },
   { text: '能源', value: '能源' },
   { text: '制造业', value: '制造业' },
 ];
 
-export const dbNamesAndId: Options[] = [
+export const DBNAME_ADN_ID: Options[] = [
   { text: 'trade', value: 'id' },
   { text: 'business', value: 'businessId' },
   { text: 'app', value: 'systemId' },
@@ -140,8 +132,8 @@ export const dbNamesAndId: Options[] = [
   { text: 'recommend', value: 'recommendId' },
   { text: 'group', value: 'id' },
   { text: 'dashboard', value: 'id' },
-  { text: 'track', value: 'name' },
-  { text: 'bTrack', value: 'name' },
+  { text: 'track', value: 'id' },
+  { text: 'bTrack', value: 'id' },
 ];
 
 export const initGapOptions = {
@@ -174,8 +166,3 @@ export const initGapOptions = {
   ],
   safetyTrade: '金融/银行',
 };
-
-export const propertyKindsOptions: Options[] = [
-  { value: 'safety', text: '安全资产' },
-  { value: 'others', text: '其他资产' },
-];

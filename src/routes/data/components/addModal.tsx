@@ -59,6 +59,7 @@ export default function AddModal(props) {
     }
   }, [props.visible]);
 
+  // 格式话获取下拉选择的数组
   const getSelecOptions = data => {
     if (!data) {
       return;
@@ -86,6 +87,7 @@ export default function AddModal(props) {
       });
     }
   };
+  // 初始话数据
   const init = () => {
     setTheName('');
     setBelongSelect('');
@@ -93,6 +95,7 @@ export default function AddModal(props) {
     setDoSave(false);
     setPreName('');
   };
+  // 关闭modal的回调
   const close = () => {
     props.close();
     init();
@@ -131,6 +134,7 @@ export default function AddModal(props) {
     }
     return true;
   };
+  // 执行保存时的执行fn
   const handleSave = () => {
     setDoSave(true);
     if (theName.trim() === '') {
@@ -183,6 +187,7 @@ export default function AddModal(props) {
         });
     }
   };
+  // 数据更新时的回调
   useEffect(() => {
     if (props.theData && props.isEdit) {
       setTheName(props.theData.dataName);
@@ -212,7 +217,7 @@ export default function AddModal(props) {
               <Input
                 className="w-330"
                 value={theName}
-                onChange={(value, context) => {
+                onChange={value => {
                   setTheName(value);
                 }}
                 placeholder="请输入数据名称"

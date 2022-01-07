@@ -1,6 +1,5 @@
 import BreadcrumbPage from '@src/components/crumb';
 import { useApi } from '@src/services/api/useApi';
-import { EventBus } from '@src/utils/util';
 import { useHistory } from '@tea/app';
 import { Button, Layout, message } from '@tencent/tea-component';
 import React, { useEffect, useState } from 'react';
@@ -28,7 +27,7 @@ const ScenesPage: React.FC = () => {
   const [dataList, setDataList] = useState<ScenesType[]>();
   const { getAll, deleteRecord } = useApi('scenes');
   const val = cookie.load('safetyTrade');
-  const [trade, setTrade] = useState(val);
+  const [trade] = useState(val);
 
   const [showModal, setShowModal] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
@@ -50,10 +49,12 @@ const ScenesPage: React.FC = () => {
     fetchList();
   }, []);
 
+  // 添加modal关闭的回调
   const handleModalClose = () => {
     setShowModal(false);
   };
 
+  // 保存的回调
   const handleSave = () => {
     fetchList();
   };
@@ -81,12 +82,6 @@ const ScenesPage: React.FC = () => {
       .catch(err => {
         message.error({ content: `失败${err}` });
       });
-  };
-
-  const onUpdate = (type, key, value) => {
-    if (key == 'select' && type == 'data') {
-      EventBus.$emit('selectDom', value);
-    }
   };
 
   return (
@@ -121,7 +116,6 @@ const ScenesPage: React.FC = () => {
               handleDelete={handleDelete}
               onEdit={handleEdit}
               showTrack={value => {
-                // history.push('/tracks', { scene: value.scenesId });
                 history.push({
                   pathname: '/tracks',
                   search: `?scene=${value.scenesId}`, // query string

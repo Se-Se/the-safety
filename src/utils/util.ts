@@ -1,5 +1,4 @@
-import { useApi } from '@src/services/api/useApi';
-import { initDbData } from '@src/services/initdbData';
+import $ from 'jquery';
 import moment from 'moment';
 import { useEffect, useRef } from 'react';
 
@@ -68,6 +67,7 @@ export function filterTheTrade(arr: any, attr: string, value: any) {
   });
 }
 
+// 矩形定义，(top, left, width, height)
 export type VertexRect = {
   x: number;
   y: number;
@@ -82,9 +82,8 @@ export const calcElemPos = dom => {
     const h = dom.clientHeight;
     // 画布节点
     const gridDom = document.getElementsByClassName('react-grid-layout')[0] as Element;
-    const parentDom = document.getElementsByClassName('dashboard-content')[0] as Element;
-    const sx = gridDom.getBoundingClientRect().left + parentDom.scrollLeft;
-    const sy = gridDom.getBoundingClientRect().top + parentDom.scrollTop;
+    const sx = gridDom.getBoundingClientRect().left;
+    const sy = gridDom.getBoundingClientRect().top;
     let x = dom.getBoundingClientRect().left;
     let y = dom.getBoundingClientRect().top;
 
@@ -96,6 +95,7 @@ export const calcElemPos = dom => {
   return { x: 0, y: 0, w: 0, h: 0 };
 };
 
+// 构造矩形4个边的中心点
 export const getElemBorderCenters = (pos: VertexRect) => {
   const { x, y, w, h } = pos;
   const leftCenter = { x: x, y: y + h / 2 };
@@ -105,46 +105,110 @@ export const getElemBorderCenters = (pos: VertexRect) => {
   return [topCenter, rightCenter, bottomCenter, leftCenter];
 };
 
-// 需要和划线逻辑整合下
-export const makeupVertex = (from: VertexRect, to: VertexRect, maxGap: number) => {
+// x轴是否交叠
+export const xOverlap = (from: VertexRect, to: VertexRect) => {
+  if (from.x < to.x + to.w && from.x + from.w > to.x) {
+    return true;
+  } else {
+    return false;
+  }
+};
+
+// y轴是否交叠
+export const yOverlap = (from: VertexRect, to: VertexRect) => {
+  if (from.y < to.y + to.h && from.h + from.y > to.y) {
+    return true;
+  } else {
+    return false;
+  }
+};
+
+// 构造两点间连线
+export const setupLink = (from: VertexRect, to: VertexRect, threshold: number) => {
   let vertex = [];
   let dir = 0;
   const sColl = getElemBorderCenters(from);
   const eColl = getElemBorderCenters(to);
-  if (from.x - to.x >= maxGap) {
-    if (from.y - to.y >= maxGap) {
-      // top -> right
-      vertex.push(sColl[0], eColl[1]);
-    } else if (from.y - to.y < -maxGap) {
-      // bottom -> right
-      vertex.push(sColl[2], eColl[1]);
-    } else {
-      // left -> right
-      vertex.push(sColl[3], eColl[1]);
-    }
-  } else if (from.x - to.x <= -maxGap) {
-    if (from.y - to.y >= maxGap) {
-      // top -> left
-      vertex.push(sColl[0], eColl[3]);
-      dir = 1;
-    } else if (from.y - to.y < -maxGap) {
-      // bottom -> left
-      vertex.push(sColl[2], eColl[3]);
-    } else {
-      // right -> left
-      vertex.push(sColl[1], eColl[3]);
-    }
-  } else {
-    if (from.y - to.y >= maxGap) {
+  const xGap = from.x - to.x;
+  const yGap = from.y - to.y;
+  const isXOverlap = xOverlap(from, to);
+  const isYOverlap = yOverlap(from, to);
+  let type = 'z-link';
+
+  if (isXOverlap && !isYOverlap) {
+    if (yGap >= threshold + to.h) {
       // top -> bottom
       vertex.push(sColl[0], eColl[2]);
-    } else {
+      dir = sColl[0].x - eColl[2].x > 0 ? 1 : 0;
+    } else if (yGap <= -threshold - from.h) {
       // bottom -> top
       vertex.push(sColl[2], eColl[0]);
+      dir = sColl[2].x - eColl[0].x > 0 ? 0 : 1;
+    } else {
+      // too close, top -> top
+      vertex.push(sColl[0], eColl[0]);
     }
+  } else if (!isXOverlap && isYOverlap) {
+    if (xGap >= threshold + to.w) {
+      // left -> right
+      vertex.push(sColl[3], eColl[1]);
+      dir = sColl[3].y - eColl[1].y > 0 ? 0 : 1;
+    } else if (xGap <= -threshold - from.w) {
+      // right -> left
+      vertex.push(sColl[1], eColl[3]);
+      dir = sColl[1].y - eColl[3].y > 0 ? 1 : 0;
+    } else {
+      // too close, left -> left
+      vertex.push(sColl[3], eColl[3]);
+    }
+  } else if (!isXOverlap && !isYOverlap) {
+    if (xGap > 0 && yGap > 0) {
+      if (Math.abs(xGap) >= Math.abs(yGap)) {
+        // left -> right
+        vertex.push(sColl[3], eColl[1]);
+        dir = 0;
+      } else {
+        // top -> bottom
+        vertex.push(sColl[0], eColl[2]);
+        dir = 1;
+      }
+    } else if (xGap > 0 && yGap < 0) {
+      if (Math.abs(xGap) >= Math.abs(yGap)) {
+        // left -> right
+        vertex.push(sColl[3], eColl[1]);
+        dir = 1;
+      } else {
+        // bottom -> top
+        vertex.push(sColl[2], eColl[0]);
+        dir = 0;
+      }
+    } else if (xGap < 0 && yGap > 0) {
+      if (Math.abs(xGap) >= Math.abs(yGap)) {
+        // right -> left
+        vertex.push(sColl[1], eColl[3]);
+        dir = 1;
+      } else {
+        // top -> bottom
+        vertex.push(sColl[0], eColl[2]);
+        dir = 0;
+      }
+    } else if (xGap < 0 && yGap < 0) {
+      if (Math.abs(xGap) >= Math.abs(yGap)) {
+        // right -> left
+        vertex.push(sColl[1], eColl[3]);
+        dir = 0;
+      } else {
+        // bottom -> top
+        vertex.push(sColl[2], eColl[0]);
+        dir = 1;
+      }
+    }
+  } else {
+    // overlap!!!
+    // left -> left
+    vertex.push(sColl[3], eColl[3]);
   }
-
-  return { vertex, dir };
+  return { vertex, dir, type };
 };
 
 export function usePrevious(value) {
@@ -155,6 +219,7 @@ export function usePrevious(value) {
   return ref.current;
 }
 
+// 获取url参数
 export const getQueryStringParams = query => {
   return query
     ? (/^[?#]/.test(query) ? query.slice(1) : query).split('&').reduce((params, param) => {
@@ -165,26 +230,7 @@ export const getQueryStringParams = query => {
     : {};
 };
 
-const dir2Value = dir => {
-  let value = -1;
-  // 上右下左
-  switch (dir) {
-    case 'left':
-      value = 3;
-      break;
-    case 'up':
-      value = 0;
-      break;
-    case 'right':
-      value = 1;
-      break;
-    case 'down':
-      value = 2;
-      break;
-  }
-  return value;
-};
-
+// 计算给定点，在矩形边框上的对称点
 export const oppositePos = props => {
   let { box, point } = props;
   let maxDist = 0;
@@ -202,11 +248,13 @@ export const oppositePos = props => {
   return pos;
 };
 
+// 移除序列中重复的项
 export function unique(arr) {
   return Array.from(new Set(arr));
 }
 
-class _EventBus {
+// 简易事件机制
+class TheEventBus {
   bus: {};
 
   constructor() {
@@ -226,45 +274,39 @@ class _EventBus {
   }
 }
 
-export const EventBus = new _EventBus();
+export const EventBus = new TheEventBus();
 
-// 初始化单个表数据根据 initdbData.tsx文件
-export const initOneDbData = (dbName: string) => {
-  const { add, clear } = useApi(dbName);
-  clear().then(() => {
-    let data = initDbData[dbName];
-    let fn = (d: any) => {
-      return new Promise((reslove, reject) => {
-        setTimeout(() => {
-          add(d)
-            .then((res: any) => {
-              console.log(res);
-              reslove(res);
-            })
-            .catch(err => {
-              console.log(err);
-            });
-        }, 500);
-      });
-    };
-    let loop = 0;
-    const loopFn = () => {
-      if (loop < data.length) {
-        fn(data[loop]).then(() => {
-          loop++;
-          loopFn();
-        });
-      } else {
-        console.log('数据加载完成');
-      }
-    };
-    loopFn();
-  });
+// oa 退出登录
+export const toLogout = () => {
+  // 当前已处于退出页 不进行再次退出
+  if (window.location.pathname === '/_logout/') {
+    return;
+  }
+  const currentHref = encodeURIComponent(window.location.href);
+
+  // 本地开发环境支持内网跳转登录
+  if (process.env.NODE_ENV === 'development') {
+    window.location.href = `http://passport.oa.com/modules/passport/signin.ashx?url=${encodeURIComponent(
+      window.location.origin + '/_sp_login_/?url=' + currentHref,
+    )}`;
+    return;
+  }
+
+  // build 后执行的登录操作
+  window.location.href = `//${window.location.host}/_logout/?url=${currentHref}`;
 };
-export const initTheDbData = (dbName: string) => {
-  const { addAll, clear } = useApi(dbName);
-  clear().then(() => {
-    let data = initDbData[dbName];
-    addAll([...data]);
-  });
+
+// 分区与大区高度取较大的高度
+export const activeChange = () => {
+  let area: any = document.getElementsByClassName('area-content')[0];
+  let group: any = document.getElementsByClassName('group-content')[0];
+  if (!!area && !!group) {
+    const areaH = $('.area-content').find('.react-grid-layout').height();
+    const groupH = $('.group-content').find('.react-grid-layout').height();
+    if (areaH >= groupH) {
+      group.style.height = areaH + 'px';
+    } else {
+      area.style.height = groupH + 'px';
+    }
+  }
 };

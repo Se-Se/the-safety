@@ -104,6 +104,7 @@ export default function AddModal(props) {
       });
   };
 
+  // 下拉框数据变化时执行的fn
   const checkExistOption = (perArr: any, attr: any, newText: any, val: any) => {
     if (!perArr) {
       return;
@@ -127,6 +128,7 @@ export default function AddModal(props) {
     return arr;
   };
 
+  // 初始化数据
   const init = () => {
     setTheName('');
     setAttacktion('');
@@ -143,6 +145,7 @@ export default function AddModal(props) {
     setAgainstDiyId('');
     setDoSave(false);
   };
+  // modal关闭时执行的回调
   const close = () => {
     props.close();
     init();
@@ -160,6 +163,7 @@ export default function AddModal(props) {
     }
     return false;
   };
+  // 当下拉选择其他时执行的fn
   useEffect(() => {
     if (attacktion !== 'diy') {
       setAttacktionDiy('');
@@ -169,6 +173,7 @@ export default function AddModal(props) {
     }
   }, [attacktion]);
 
+  // 当下拉选择其他时执行的fn
   useEffect(() => {
     if (theTheBug !== 'diy') {
       setBugDiy('');
@@ -178,6 +183,7 @@ export default function AddModal(props) {
     }
   }, [theTheBug]);
 
+  // 当下拉选择其他时执行的fn
   useEffect(() => {
     if (action !== 'diy') {
       setActionDiy('');
@@ -187,6 +193,7 @@ export default function AddModal(props) {
     }
   }, [action]);
 
+  // 当下拉选择其他时执行的fn
   useEffect(() => {
     if (against !== 'diy') {
       setAgainstDiy('');
@@ -261,6 +268,7 @@ export default function AddModal(props) {
     }
   };
 
+  // 保存时执行的fn
   const handleSave = () => {
     setDoSave(true);
 
@@ -295,6 +303,8 @@ export default function AddModal(props) {
         });
     }
   };
+
+  // 数据更新的回调
   useEffect(() => {
     if (props.theData && props.isEdit) {
       setTheName(props.theData.propertyOrSystem);

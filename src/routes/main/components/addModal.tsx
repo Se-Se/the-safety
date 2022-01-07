@@ -1,5 +1,5 @@
 import PicModal from '@src/components/picModal';
-import { initGapOptions, mainImages, tradeOptions } from '@src/components/tableCommon/globalData';
+import { initGapOptions, MAIN_IMAGES, TRADE_OPTIONS } from '@src/components/tableCommon/globalData';
 import { useApi } from '@src/services/api/useApi';
 import { Bubble, Button, Form, Icon, Input, message, Modal, Select, TextArea } from '@tencent/tea-component';
 import React, { useEffect, useState } from 'react';
@@ -21,12 +21,15 @@ export default function AddModal(props) {
   const [showModalPic, setShowModalPic] = useState(false);
   const [theTrade, setTheTrade] = useState('');
 
+  // 输入标题的回调
   const handleTitle = (t: string) => {
     setTitle(t);
   };
+  // 输入描述的回调
   const handleDesText = (t: string) => {
     setDesText(t);
   };
+  // 初始话数据
   const init = () => {
     setDesText('');
     setTitle('');
@@ -36,6 +39,8 @@ export default function AddModal(props) {
     setShowModalPic(false);
     setTheTrade('');
   };
+
+  // 关闭modal的回调
   const close = () => {
     props.close();
     init();
@@ -76,6 +81,7 @@ export default function AddModal(props) {
     }
     return true;
   };
+  // 点击保存btn的执行fn
   const handleSave = () => {
     setDoSave(true);
     if (title.trim() === '') {
@@ -133,6 +139,7 @@ export default function AddModal(props) {
         });
     }
   };
+  // 数据变化的回调
   useEffect(() => {
     if (props.theTrade) {
       setDesText(props.theTrade.description);
@@ -142,34 +149,41 @@ export default function AddModal(props) {
       setTheTrade(props.theTrade.theTrade);
     }
   }, [props.theTrade]);
+
+  // 点击打卡图片modal
   const openPic = () => {
     setShowModalPic(!showModalPic);
   };
+  // 关闭添加图片modal的fn
   const closePic = () => {
     setShowModalPic(false);
   };
+  // 点击保存图片的fn
   const handleSaveChose = data => {
     setPicName(data);
     setShowModalPic(false);
   };
+  // 行业变化的fn
   const handleTradeChange = data => {
     setTheTrade(data);
   };
+  // 添加行业时同时添加对应的gapOptions
   const handleAddGapOptions = (data: any) => {
     const { add, getAll } = useApi('gapOptions');
     getAll().then(res => {
+      const theSafetyTrade = data.theTrade + '/' + data.name;
       let filterArr = res.filter((item: any) => {
-        return item.safetyTrade === data.theTrade + '/' + data.name;
+        return item.safetyTrade === theSafetyTrade;
       });
       if (!filterArr.length) {
         let request = { ...initGapOptions };
-        request.safetyTrade = data.theTrade + '/' + data.name;
-        (request.id = 'gapOptions_id' + new Date().getTime()),
-          add(request)
-            .then(() => {})
-            .catch(err => {
-              console.log(err);
-            });
+        request.safetyTrade = theSafetyTrade;
+        request.id = 'gapOptions_id' + new Date().getTime();
+        add(request)
+          .then(() => {})
+          .catch(err => {
+            console.log(err);
+          });
       }
     });
   };
@@ -180,7 +194,7 @@ export default function AddModal(props) {
         close={closePic}
         saveChose={handleSaveChose}
         isClass={true}
-        imgNames={mainImages}
+        imgNames={MAIN_IMAGES}
       ></PicModal>
       <Modal
         maskClosable
@@ -217,7 +231,7 @@ export default function AddModal(props) {
                 matchButtonWidth
                 appearance="button"
                 placeholder="请选择所属行业"
-                options={tradeOptions}
+                options={TRADE_OPTIONS}
                 onChange={value => {
                   handleTradeChange(value);
                 }}

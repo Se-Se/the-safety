@@ -1,16 +1,22 @@
+import BreadcrumbPage from '@src/components/crumb';
 import DashboardPage from '@src/components/dashboard';
 import { fetchData } from '@src/components/dashboard/fetch';
-import { DBTableName } from '@src/services';
-import { calcElemPos, makeupVertex, unique } from '@src/utils/util';
+import { useApi } from '@src/services/api/useApi';
+import { calcElemPos, randomString, setupLink } from '@src/utils/util';
 import { Layout } from '@tencent/tea-component';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import cookie from 'react-cookies';
-import { useIndexedDB } from 'react-indexed-db';
 import CollapsePanel from './edit';
 import './index.less';
 
 const { Body, Content } = Layout;
+const crumb = [
+  { name: '银行', link: '/main' },
+  { name: '行业资产', link: '/topology' },
+  { name: '业务流程', link: '/topology' },
+];
 
+// 通过Dom ID查询节点的名称
 const getElemName = id => {
   let itemLabel;
   const dom: HTMLElement = document.getElementById('area_' + id);
@@ -25,58 +31,66 @@ const getElemName = id => {
   return { itemLabel };
 };
 
+// Track DB中存放格式
 type TrackType = {
   business?: string;
   name?: string;
   tracks?: string;
+  id?: string;
 };
 
+// 路径中点坐标的定义
 type Point = {
   x: number;
   y: number;
-  id: string;
+  id: string; // 相关节点 ID，方便查询
 };
 
+// 节点
 type Node = {
-  id: string;
-  content: string;
-  gridContent: string;
-  active: boolean;
+  id: string; // 相关节点 ID
+  content: string; // 节点名称
+  gridContent: string; // 大区和分区没有合适关联关系，该项为空
+  active: boolean; // 是否是高亮or编辑态
 };
 
+// 路径中全部节点（包括起止点）
 export type NodeList = {
-  content: string;
-  initial: Node[];
+  content: string; // 路径名
+  initial: Node[]; // 唯一ID
+  id: string;
 };
 
+// 路径中边的定义
 type Edge = {
-  from: Point;
-  to: Point;
-  active: boolean;
-  dir: number;
+  from: Point; // 起点
+  to: Point; // 终点
+  active: boolean; // 是否是高亮or编辑态
+  dir: number; // 即Line中提及的扫过方向，0：顺时针:1：逆时针
+  type: string; // 路线类型，z字形，L字形，直线
 };
 
 type Path = {
-  name: string;
+  name: string;  // 路径名
+  id: string; // 唯一ID
   edges: Edge[];
 };
 
 const BusinessTrackPage: React.FC = () => {
-  const [tracks, setTracks] = useState<TrackType[]>([]);
-  const [tempLinks, setTempLinks] = useState<Path[]>([]);
-  const [tempNodes, setTempNodes] = useState<NodeList[]>([]);
+  const [tracks, setTracks] = useState<TrackType[]>([]); // 路径缓存，用于更新后台数据
+  const [tempLinks, setTempLinks] = useState<Path[]>([]); // 路径缓存，用户绘制具体路径
+  const [tempNodes, setTempNodes] = useState<NodeList[]>([]); // 节点缓存，用于列表区域绘制
   const [activeLink, setActiveLink] = useState(''); // 当前选中路径名
   const [curPath, setCurPath] = useState(''); // 正在编辑路径
-  const [dataSource, setDataSource] = useState<Array<{}>>([]);
-  const [groupSource, setgroupSource] = useState<Array<{}>>([]);
-  const { getAll: getTracksSource, add, update, deleteRecord: removeTrackDBRecord } = useIndexedDB(DBTableName.bTrack);
-  const business = cookie.load('safetyTrade');
+  const [dataSource, setDataSource] = useState<Array<{}>>([]); // 系统架构数据节点数据缓存
+  const [groupSource, setgroupSource] = useState<Array<{}>>([]); // 系统架构数据分区数据缓存
+  const { getAll: getTracksSource, add, update, deleteRecord: removeTrackDBRecord } = useApi('bTrack');
+  const business = cookie.load('safetyTrade'); // cookie读取当前行业，更新数据时需要
 
-  // const colorStyle = { strokeColor: 'white' };
-  const maxGap = 200;
-  const minGap = 10;
+  const maxGap = 4;// 节点关系判断时临界值
 
   useEffect(() => {
+    // 请求系统架构数据
     fetchData()
       .then(([data, group]) => {
         addGapData(data);
@@ -87,9 +101,11 @@ const BusinessTrackPage: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    // 获取系统架构后再进行路径绘制
     if (groupSource.length > 0 && dataSource.length > 0) {
       getTracksSource().then(resp => {
-        let recs: TrackType[] = resp.filter(elem => elem['business'] == business);
+        // 过滤数据
+        let recs: TrackType[] = resp.filter(elem => elem.business == business);
         recs.forEach((elem, index) => {
           console.log('Business Track ' + index + ':' + JSON.stringify(elem));
         });
@@ -109,7 +125,7 @@ const BusinessTrackPage: React.FC = () => {
 
   // 添加 gap 信息
   const addGapData = (data: any) => {
-    const { getAll } = useIndexedDB(DBTableName.gap);
+    const { getAll } = useApi('gap');
     if (!data.length) {
       return;
     }
@@ -118,7 +134,7 @@ const BusinessTrackPage: React.FC = () => {
         item.content.data.map(dItem => {
           res.map(gItem => {
             if (dItem.text === gItem.propertyOrSystem) {
-              dItem['gapData'] = { ...gItem };
+              dItem.gapData = { ...gItem };
             }
           });
         });
@@ -128,27 +144,29 @@ const BusinessTrackPage: React.FC = () => {
     });
   };
 
+  // 切换高亮路径
   const updateActiveLinks = (paths, target) => {
     let links = [...paths];
     links.forEach(elem => {
       elem.edges.forEach((item: Edge) => (item.active = false));
     });
-    const item = links.find(elem => elem.name === target);
+    const item = links.find(elem => elem.id === target);
     if (item) {
       item.edges.forEach(item => (item.active = true));
     }
     return links;
   };
 
+  // 当track数据更新时，重新计算Tracks和Nodes，用于刷新显示
   useEffect(() => {
     const nodeLists: NodeList[] = [];
     let paths: Path[] = [];
 
     tracks.forEach(elem => {
-      let { tracks, name } = elem;
+      let { tracks, name, id } = elem;
       if (tracks === '') {
-        paths.push({ edges: [], name });
-        nodeLists.push({ content: name, initial: [] });
+        paths.push({ edges: [], name, id });
+        nodeLists.push({ content: name, id, initial: [] });
       } else {
         const doms = elem.tracks.split(',');
         if (doms?.length > 1) {
@@ -161,28 +179,30 @@ const BusinessTrackPage: React.FC = () => {
             const {
               vertex: [from, to],
               dir,
-            } = makeupVertex(valueStart, valueEnd, maxGap);
+              type,
+            } = setupLink(valueStart, valueEnd, maxGap);
             edges.push({
               from: { x: from.x, y: from.y, id: doms[i] },
               to: { x: to.x, y: to.y, id: doms[i + 1] },
               active: false,
-              dir: dir,
+              dir,
+              type,
             });
           }
-          paths.push({ edges: edges, name });
+          paths.push({ edges: edges, name, id });
         } else {
-          paths.push({ edges: [], name });
+          paths.push({ edges: [], name, id });
         }
         let initial = doms.map(item => {
           const names = getElemName(item);
           return {
             id: item,
-            content: names['itemLabel'],
+            content: names.itemLabel,
             gridContent: '',
             active: false,
           };
         });
-        nodeLists.push({ content: name, initial });
+        nodeLists.push({ content: name, initial, id });
       }
     });
     setTempNodes([...nodeLists]);
@@ -190,28 +210,7 @@ const BusinessTrackPage: React.FC = () => {
     setTempLinks([...paths]);
   }, [tracks]);
 
-  const uids = useMemo(() => {
-    let uids = [];
-    let highlightPath = curPath !== '' ? curPath : activeLink;
-    if (highlightPath !== '') {
-      const path = tempLinks.find(elem => elem.name === highlightPath);
-      if (path) {
-        path.edges.forEach(elem => {
-          uids.push(elem.from.id);
-          uids.push(elem.to.id);
-        });
-      }
-    } else {
-      tempNodes.forEach(elem => {
-        return elem.initial.forEach(item => {
-          uids.push(item.id);
-        });
-      });
-    }
-
-    return unique(uids);
-  }, [activeLink, curPath, tempLinks]);
-
+  // 节点集合转换成对应路径集合
   const nodes2Path = (nodeColls: NodeList[], active) => {
     let paths = nodeColls.map(elem => {
       const doms = elem.initial.map(elem => elem.id);
@@ -225,15 +224,17 @@ const BusinessTrackPage: React.FC = () => {
           const {
             vertex: [from, to],
             dir,
-          } = makeupVertex(valueStart, valueEnd, maxGap);
+            type,
+          } = setupLink(valueStart, valueEnd, maxGap);
           edges.push({
             from: { x: from.x, y: from.y, id: doms[i] },
             to: { x: to.x, y: to.y, id: doms[i + 1] },
             active,
-            dir: dir,
+            dir,
+            type,
           });
         }
-        return { edges: edges, name: elem['content'] } as Path;
+        return { edges: edges, name: elem.content, id: elem.id } as Path;
       }
       return undefined;
     });
@@ -241,6 +242,7 @@ const BusinessTrackPage: React.FC = () => {
     return paths;
   };
 
+  // 对应路径列表增删改查操作
   const updateTracks = (id: string, event: string, extraUid: string[]) => {
     console.log('================>', id, event, extraUid);
     if (!id) {
@@ -250,10 +252,12 @@ const BusinessTrackPage: React.FC = () => {
     switch (event) {
       case 'save':
         {
-          const trackIndex = tracks.findIndex(elem => id === elem.name);
-          const nodelist = tempNodes.find(elem => elem.content === id);
+          // 区分新增路径和既有路径两种情况，刷新tracks缓存用于显示更新，调用后台接口用于更新，并且移除当前编辑态路径标识
+          // 并不刷新节点缓存，因为它已经在新增节点过程中刷新
+          const trackIndex = tracks.findIndex(elem => id === elem.id);
+          const nodelist = tempNodes.find(elem => elem.id === id);
           const uids = nodelist.initial.map(elem => elem.id);
-          const modifiedTrack = { business, name: nodelist.content, tracks: uids.join(',') };
+          const modifiedTrack = { business, name: nodelist.content, tracks: uids.join(','), id: nodelist.id };
           let origTracksDup = [...tracks];
 
           if (trackIndex !== -1) {
@@ -263,40 +267,41 @@ const BusinessTrackPage: React.FC = () => {
           }
           setTracks([...origTracksDup]);
           if (trackIndex === -1) {
-            add<TrackType>(modifiedTrack);
+            add(modifiedTrack);
           } else {
-            update<TrackType>(modifiedTrack);
+            update({ ...modifiedTrack, safetyTrade: business });
           }
           setCurPath('');
         }
         break;
       case 'undo':
         {
-          let index = tracks.findIndex(elem => elem.name === id);
+          // 回滚当前操作
+          let index = tracks.findIndex(elem => elem.id === id);
           let backupNodeLists, backupPaths;
           if (index === -1) {
-            // 未保存的数据
+            // 未保存的数据（新增路径后），移除新增数据
             backupNodeLists = [...tempNodes];
-            const posN = backupNodeLists.findIndex(elem => elem.content === id);
+            const posN = backupNodeLists.findIndex(elem => elem.id === id);
             posN !== -1 && backupNodeLists.splice(posN, 1);
 
             backupPaths = [...tempLinks];
-            const posT = backupPaths.findIndex(elem => elem.name === id);
+            const posT = backupPaths.findIndex(elem => elem.id === id);
             posT !== -1 && backupPaths.splice(posT, 1);
           } else {
-            // 已保存的数据
+            // 已保存的数据，利用tracks覆盖修改后数据
             backupNodeLists = tracks.map(elem => {
               const doms = elem.tracks === '' ? [] : elem.tracks.split(',');
               let initial = doms.map(item => {
                 const names = getElemName(item);
                 return {
                   id: item,
-                  content: names['itemLabel'],
+                  content: names.itemLabel,
                   gridContent: '',
                   active: false,
                 };
               });
-              return { content: elem['name'], initial } as NodeList;
+              return { content: elem.name, initial, id: elem.id } as NodeList;
             });
             backupPaths = nodes2Path(backupNodeLists, false);
             backupPaths = updateActiveLinks(backupPaths, '');
@@ -307,20 +312,24 @@ const BusinessTrackPage: React.FC = () => {
         }
         break;
       case 'edit':
+        // 更新编辑态标识，同时刷新该路径节点的编辑态标识（用户UI风格指定）
         setCurPath(id);
         const paths = updateActiveLinks(tempLinks, id);
         setTempLinks(paths);
         break;
       case 'delete':
         {
-          let residual = tracks.filter(elem => id !== elem.name);
+          // 删除改条数据对应track，利用UseEffect更新tracks和nodelists缓存
+          let residual = tracks.filter(elem => id !== elem.id);
           setTracks([...residual]);
-          removeTrackDBRecord(id);
+          removeTrackDBRecord([id]);
         }
         break;
       case 'new':
-        setTempNodes([...tempNodes, { content: id, initial: [] }]);
-        setCurPath(id);
+        // 新增时仅增加nodelists缓存记录，此时无法绘制路径（所以不更新），没有 确定保存，所以也不增加tracks记录
+        const _id = id + randomString();
+        setTempNodes([...tempNodes, { content: id, initial: [], id: _id }]);
+        setCurPath(_id);
         break;
       case 'highlight':
         if (id !== activeLink) {
@@ -334,13 +343,15 @@ const BusinessTrackPage: React.FC = () => {
         }
         break;
       default:
+        // 这里区分出3种情况，新增节点，删除节点，拖动节点
         if (extraUid && extraUid.length > 0) {
-          const nodelist = tempNodes.find(elem => elem.content === id);
-          const nodes = nodelist.initial;
+          const nodelist = tempNodes.find(elem => elem.id === id);
+          const nodes = [...nodelist.initial];
           if (event === 'addNode') {
             const newNode = extraUid[0];
             const name = getElemName(newNode);
             const len = nodes.length;
+            // to是否与from重叠
             if ((len > 0 && nodes[len - 1].id !== newNode) || len === 0)
               nodes.push({
                 id: newNode,
@@ -356,43 +367,55 @@ const BusinessTrackPage: React.FC = () => {
             const deletedIndex = nodes.findIndex(elem => elem.id === extraUid[0]);
             deletedIndex !== -1 && nodes.splice(deletedIndex, 1);
           }
+          nodelist.initial = nodes;
           setTempNodes([...tempNodes]);
 
-          const index = tempLinks.findIndex(elem => elem.name === id);
+          // 更新tracks缓存
+          const index = tempLinks.findIndex(elem => elem.id === id);
           if (index !== -1) {
-            const paths = nodes2Path([nodelist], true);
-            if (paths.length > 0) {
-              const tempLinksDup = [...tempLinks];
-              tempLinksDup.splice(index, 1, paths[0]);
-              setTempLinks([...tempLinksDup]);
+            const alteredPath = nodes2Path([nodelist], true);
+            const tempLinksDup = [...tempLinks];
+            if (alteredPath && alteredPath.length > 0) {
+              tempLinksDup.splice(index, 1, alteredPath[0]);
+            } else {
+              tempLinksDup.splice(index, 1);
             }
+            setTempLinks([...tempLinksDup]);
           } else {
-            setTempLinks([...tempLinks, { name: id, edges: [] }]);
+            // 没找到，要么是新增路线，要么是删除节点（仅剩0/1个）导致
+            if (nodelist.initial.length > 1) {
+              const alteredPath = nodes2Path([nodelist], true);
+              setTempLinks([...tempLinks, { name: nodelist.content, edges: [...alteredPath[0].edges], id }]);
+            } else {
+              setTempLinks([...tempLinks, { name: nodelist.content, edges: [], id }]);
+            }
           }
         }
         break;
     }
   };
 
+  // 过滤高亮/编辑态/初始路径，若存在编辑态路径，返回该路径，否则机型查找高亮态路径，如果不存在上述情况，返回全部路径
   const pathsFilter = () => {
     if (!!curPath) {
-      const editingOne = tempLinks.find(elem => elem.name === curPath);
+      const editingOne = tempLinks.find(elem => elem.id === curPath);
       return [editingOne];
     } else if (!!activeLink) {
-      const highlightOne = tempLinks.find(elem => elem.name === activeLink);
+      const highlightOne = tempLinks.find(elem => elem.id === activeLink);
       return [highlightOne];
     } else {
       return tempLinks;
     }
   };
 
+  // 过滤高亮/编辑态路径，若存在编辑态路径，返回该路径相关节点，否则机型查找高亮态路径相关节点，如果不存在上述情况，返回空
   const edgesFilter = () => {
     if (!!curPath) {
-      const editingOne = tempNodes.find(elem => elem.content === curPath);
-      return editingOne.initial.map(elem => elem.id);
+      const editingOne = tempNodes.find(elem => elem.id === curPath);
+      return editingOne ? editingOne.initial.map(elem => elem.id) : [];
     } else if (!!activeLink) {
-      const highlightOne = tempNodes.find(elem => elem.content === activeLink);
-      return highlightOne.initial.map(elem => elem.id);
+      const highlightOne = tempNodes.find(elem => elem.id === activeLink);
+      return highlightOne ? highlightOne.initial.map(elem => elem.id) : [];
     } else {
       return [];
     }
@@ -401,7 +424,13 @@ const BusinessTrackPage: React.FC = () => {
   return (
     <Body>
       <Content>
-        <Content.Header title="业务流程"></Content.Header>
+        <Content.Header
+          subtitle={
+            <>
+              <BreadcrumbPage crumbs={crumb} />
+            </>
+          }
+        ></Content.Header>
         <div className="track-content">
           <DashboardPage
             edit={false}
@@ -413,8 +442,6 @@ const BusinessTrackPage: React.FC = () => {
             track={[curPath, activeLink, edgesFilter()]}
             linkSource={pathsFilter()}
             markers={[]}
-            maximumGap={maxGap}
-            minimalGap={minGap}
             stroke={{ strokeColor: 'white' }}
           />
           <div className="path-panel">

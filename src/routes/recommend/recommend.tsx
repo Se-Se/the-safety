@@ -1,15 +1,21 @@
-import { areaOptions } from '@src/components/tableCommon/globalData';
+import BreadcrumbPage from '@src/components/crumb';
+import { AREA_OPTIONS } from '@src/components/tableCommon/globalData';
 import { useApi } from '@src/services/api/useApi';
 import { useHistory } from '@tea/app';
 import { Button, Layout } from '@tencent/tea-component';
 import React, { useEffect, useState } from 'react';
 import RecommendItem from './components/recommendItem';
 const { Body, Content } = Layout;
+const crumb = [
+  { name: '银行', link: '/main' },
+  { name: '知识展示', link: '/recommend' },
+  { name: '改进建议', link: '/recommend' },
+];
 const RecommendsPage: React.FC = () => {
   const [dataList, setDataList] = useState([]);
   const { getAll } = useApi('recommend');
   const history = useHistory();
-  const [hArr, setHArr] = useState([]);
+  const [hArr] = useState([]);
 
   // 拉取数据
   const fetchList = () => {
@@ -22,10 +28,12 @@ const RecommendsPage: React.FC = () => {
       .catch(() => {});
   };
 
+  // 页面初次加载时执行
   useEffect(() => {
     fetchList();
   }, []);
 
+  // 根据页面展示需要格式话获取数据
   const formatterData = (data: any) => {
     if (!data) {
       return;
@@ -69,7 +77,7 @@ const RecommendsPage: React.FC = () => {
     });
 
     let orderArr = [];
-    areaOptions.map(item => {
+    AREA_OPTIONS.map(item => {
       newArr.map(nItem => {
         if (item.text === nItem.theArea) {
           orderArr.push(nItem);
@@ -78,13 +86,21 @@ const RecommendsPage: React.FC = () => {
     });
     return orderArr;
   };
+  // 点击进入添加页面
   const onAdd = () => {
     history.push('/recommend/add');
   };
   return (
     <Body>
       <Content className="sec-recommend">
-        <Content.Header className="sec-recommend-title" title="改进建议"></Content.Header>
+        <Content.Header
+          className="sec-recommend-title"
+          subtitle={
+            <>
+              <BreadcrumbPage crumbs={crumb} />
+            </>
+          }
+        ></Content.Header>
         <Content.Body className="recommend-content-body">
           <Button
             type="primary"

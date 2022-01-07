@@ -1,24 +1,19 @@
-import { dbNamesAndId } from '@src/components/tableCommon/globalData';
-import { filterTheTrade } from '@src/utils/util';
+import { DBNAME_ADN_ID } from '@src/components/tableCommon/globalData';
+import { filterTheTrade, toLogout } from '@src/utils/util';
 import { message } from '@tencent/tea-component';
 import axios, { AxiosInstance, AxiosRequestConfig, Method } from 'axios';
-import Base64 from 'base-64';
 import cookie from 'react-cookies';
 
-const defalutConfig: AxiosRequestConfig = {
-  baseURL: 'http://dev-sec-sandbox.testsite.woa.com',
+const defaultConfig: AxiosRequestConfig = {
+  baseURL: '/api',
   timeout: 20000,
   headers: {
-    'Access-Control-Allow-Origin': '*',
-    token: cookie.load('sec_token') || '',
+    'X-Requested-With': 'xmlhttprequest', // 此标记用于OA系统302状态码转401
   },
 };
 export const api: AxiosInstance = axios.create({
-  ...defalutConfig,
+  ...defaultConfig,
 });
-
-// 允许cookie
-// api.defaults.withCredentials = true;
 
 // 定义接口
 interface PendingType {
@@ -60,7 +55,6 @@ const removePending = (config: AxiosRequestConfig) => {
  */
 api.interceptors.request.use(
   config => {
-    console.log('config', config);
     removePending(config);
     config.cancelToken = new CancelToken(c => {
       pending.push({ url: config.url, method: config.method, params: config.params, data: config.data, cancel: c });
@@ -77,7 +71,6 @@ api.interceptors.request.use(
  */
 api.interceptors.response.use(
   response => {
-    // console.log('response', response);
     removePending(response.config);
     if (response.data?.code === 0) {
       return Promise.resolve(response.data);
@@ -85,8 +78,18 @@ api.interceptors.response.use(
     return Promise.resolve(response);
   },
   error => {
-    console.log('error', error);
-    return Promise.reject(error?.response?.statusText || { message: error.message });
+    const { status, statusText } = error?.response || {};
+    // 登录
+    if (status === 401) {
+      toLogout();
+      return Promise.reject('请登录');
+    }
+    // 无权限
+    if (status === 403) {
+      window.location.href = '/403';
+      return Promise.reject('暂无权限');
+    }
+    return Promise.reject(statusText || { message: error.message });
   },
 );
 
@@ -97,42 +100,42 @@ api.interceptors.response.use(
  *
  */
 
-interface Login {
-  userName: string;
-  password: string;
-}
-
 let loadingFlag: boolean = false;
 export async function getAll(dbName: string, hideLoading?: boolean): Promise<any> {
-  return await apiFn('/api/useDB/executor', dbName, 'getAll', {}, hideLoading);
+  return await apiFn('/useDB/executor', dbName, 'getAll', {}, hideLoading);
 }
 
 export async function add(dbName: string, data: any, hideLoading?: boolean) {
-  addSafetyTrade(data);
-  return await apiFn(`/api/useDB/executor`, dbName, 'add', data, hideLoading);
+  //dbName为gapOptions时不需要执行此方法 会在添加页面时添加safetyTrade
+  if (dbName !== 'gapOptions') {
+    addSafetyTrade(data);
+  }
+  return await apiFn('/useDB/executor', dbName, 'add', data, hideLoading);
 }
 export async function addAll(dbName: string, data: any, hideLoading?: boolean) {
   addSafetyTrade(data);
-  return await apiFn(`/api/useDB/executor`, dbName, 'addAll', data, hideLoading);
+  return await apiFn('/useDB/executor', dbName, 'addAll', data, hideLoading);
 }
 
 export async function update(dbName: string, data: any, hideLoading?: boolean) {
+  upDateUserName(data);
   let theData = formatterData(dbName, data);
-  return await apiFn(`/api/useDB/executor`, dbName, 'update', theData, hideLoading);
+  return await apiFn('/useDB/executor', dbName, 'update', theData, hideLoading);
 }
 
 export async function deleteRecord(dbName: string, data: any, hideLoading?: boolean) {
   let theData = formatterData(dbName, data);
-  return await apiFn(`/api/useDB/executor`, dbName, 'deleteRecord', theData, hideLoading);
+  return await apiFn('/useDB/executor', dbName, 'deleteRecord', theData, hideLoading);
 }
 export async function getByIndex(dbName: string, data: any, hideLoading?: boolean) {
   let theData = formatterData(dbName, data);
-  return await apiFn(`/api/useDB/executor`, dbName, 'getByIndex', theData, hideLoading);
+  return await apiFn('/useDB/executor', dbName, 'getByIndex', theData, hideLoading);
 }
 
 export async function clear(dbName: string, hideLoading?: boolean): Promise<any> {
-  const idName = dbNamesAndId.filter(item => item.text === dbName)[0].value;
-  return new Promise((reslove, reject) => {
+  // 获取 dbName 对应的 id 名称
+  const idName = DBNAME_ADN_ID.filter(item => item.text === dbName)[0].value;
+  return new Promise((resolve, reject) => {
     getAll(dbName, hideLoading)
       .then((res: any) => {
         if (res.length) {
@@ -140,10 +143,10 @@ export async function clear(dbName: string, hideLoading?: boolean): Promise<any>
             return item[idName];
           });
           deleteRecord(dbName, ids, hideLoading).then(dres => {
-            reslove(dres);
+            resolve(dres);
           });
         } else {
-          reslove([]);
+          resolve([]);
         }
       })
       .catch(err => {
@@ -151,17 +154,9 @@ export async function clear(dbName: string, hideLoading?: boolean): Promise<any>
       });
   });
 }
-
-export async function login(data: Login, hideLoading?: boolean) {
-  const base64Data: Login = {
-    userName: Base64.encode(data.userName),
-    password: Base64.encode(data.password),
-  };
-  return await loginFn('/api/manager/login', base64Data, hideLoading);
-}
-
+// 将请求参数格式化成规定的数据格式
 const formatterData = (dbName: string, data: any) => {
-  const key = dbNamesAndId.filter(item => item.text === dbName)[0].value;
+  const key = DBNAME_ADN_ID.filter(item => item.text === dbName)[0].value;
   let result = {
     key: key,
     value: data,
@@ -172,18 +167,32 @@ const formatterData = (dbName: string, data: any) => {
 // 添加时给每条数据添加safetyTrade字段来区分行业
 const addSafetyTrade = (data: any) => {
   const val = cookie.load('safetyTrade');
+  const user = cookie.load('u_name');
   if (Array.isArray(data)) {
     data.map(item => {
-      item['safetyTrade'] = val;
+      item.safetyTrade = val;
+      item.addMen = user;
     });
   } else {
-    data['safetyTrade'] = val;
+    data.safetyTrade = val;
+    data.addMen = user;
   }
 };
-
+// 添加时给每条数据添加safetyTrade字段来区分行业
+const upDateUserName = (data: any) => {
+  const val = cookie.load('u_name');
+  if (Array.isArray(data)) {
+    data.map(item => {
+      item.editMen = val;
+    });
+  } else {
+    data.editMen = val;
+  }
+};
 // 不需要进行筛选的dbName数组;
 const whiteSafetyTrade: string[] = ['trade'];
 
+// api调用统一方法
 const apiFn = (url: string, dbName: string, handleName: string, data: any, hideLoading?: boolean) => {
   if (!hideLoading && !loadingFlag) {
     loadingFlag = true;
@@ -192,7 +201,7 @@ const apiFn = (url: string, dbName: string, handleName: string, data: any, hideL
       duration: 0,
     });
   }
-  return new Promise((reslove, reject) => {
+  return new Promise((resolve, reject) => {
     let request: any = {
       DBTableName: dbName,
       handleName: handleName,
@@ -206,13 +215,10 @@ const apiFn = (url: string, dbName: string, handleName: string, data: any, hideL
           if (whiteSafetyTrade.indexOf(dbName) < 0 && handleName === 'getAll') {
             const val = cookie.load('safetyTrade');
             const arr = filterTheTrade(res.data.data, 'safetyTrade', val);
-            reslove(arr);
+            resolve(arr);
           } else {
-            reslove(res.data.data);
+            resolve(res.data.data);
           }
-        } else if (res?.data?.code === '402') {
-          // location.href = '/login';
-          reject(res?.data?.msg);
         } else {
           reject('数据错误');
         }
@@ -223,40 +229,7 @@ const apiFn = (url: string, dbName: string, handleName: string, data: any, hideL
         }
       })
       .finally(() => {
-        if (!hideLoading) {
-          setTimeout(() => {
-            message.loading({ content: '' }).hide();
-            loadingFlag = false;
-          }, 1000);
-        }
-      });
-  });
-};
-
-const loginFn = (url: string, data: Login, hideLoading?: boolean) => {
-  if (!hideLoading && !loadingFlag) {
-    loadingFlag = true;
-    message.loading({
-      content: '登陆中...',
-      duration: 0,
-    });
-  }
-  return new Promise((reslove, reject) => {
-    api
-      .post(url, data)
-      .then((res: any) => {
-        if (res?.data?.code === '0000') {
-          reslove(res.data.data);
-        } else {
-          reject('登录失败');
-        }
-      })
-      .catch(err => {
-        if (!err.message) {
-          reject(err);
-        }
-      })
-      .finally(() => {
+        // 请求结束 取消loading状态
         if (!hideLoading) {
           setTimeout(() => {
             message.loading({ content: '' }).hide();

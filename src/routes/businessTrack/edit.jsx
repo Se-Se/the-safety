@@ -5,13 +5,17 @@ import React, { useEffect, useState } from 'react';
 import './edit.less';
 
 export default function CollapsePanel(props) {
+  // name: 折叠面板名称（并非具体路线名称）
+  // data: 初始全部路线数据
+  // highlight：初始高亮显示路线
+  // currentPath: 初始处于编辑态路线
   let { name: panelName, data, highlight, currentPath } = props;
 
-  const [checked, setChecked] = useState('');
-  const [visible, setVisible] = useState(false);
-  const [names, setNames] = useState([]);
-  const [nodeLists, setNodeLists] = useState([]);
-  const [activeOnes, setActiveOnes] = useState([]);
+  const [checked, setChecked] = useState(''); // 当前高亮显示路线
+  const [visible, setVisible] = useState(false); // 新建路径Modal是否显示
+  const [names, setNames] = useState([]); // 当前已经创建路线名，路线名在单一场景内不能重名
+  const [nodeLists, setNodeLists] = useState([]); // 全部路线节点缓存
+  const [activeOnes, setActiveOnes] = useState([]); // 折叠非折叠标识
 
   const style = { marginRight: 14, marginBottom: 18 };
   const arrowDown = () => <span className="arrowIcon" />;
@@ -23,11 +27,12 @@ export default function CollapsePanel(props) {
   }, [highlight]);
 
   useEffect(() => {
+    // 初始化本地数据
     if (data.length > 0) {
       const pathnames = data.map(elem => elem.content);
       setNames(pathnames);
       if (!!currentPath) {
-        const availablePath = data.find(elem => elem.content === currentPath);
+        const availablePath = data.find(elem => elem.id === currentPath);
         setNodeLists([availablePath]);
         if (data.length > 0) {
           const initActive = data.map(elem => elem.content);
@@ -37,18 +42,22 @@ export default function CollapsePanel(props) {
         setNodeLists([...data]);
         setActiveOnes([]);
       }
+    } else {
+      setNodeLists([]);
+      setNames([]);
+      setActiveOnes([]);
     }
   }, [data, currentPath]);
 
   const content = data => (
     <div className="op">
-      {data.content !== currentPath ? (
+      {data.id !== currentPath ? (
         <div className="op-btn">
           <Button
             type="link"
             style={style}
             onClick={() => {
-              props.onListChange(data.content, 'edit');
+              props.onListChange(data.id, 'edit');
             }}
           >
             编辑
@@ -57,7 +66,7 @@ export default function CollapsePanel(props) {
             type="link"
             style={style}
             onClick={() => {
-              props.onListChange(data.content, 'delete');
+              props.onListChange(data.id, 'delete');
             }}
           >
             删除
@@ -69,7 +78,7 @@ export default function CollapsePanel(props) {
             type="link"
             style={style}
             onClick={() => {
-              props.onListChange(data.content, 'save');
+              props.onListChange(data.id, 'save');
             }}
           >
             保存
@@ -78,7 +87,7 @@ export default function CollapsePanel(props) {
             type="link"
             style={style}
             onClick={() => {
-              props.onListChange(data.content, 'undo');
+              props.onListChange(data.id, 'undo');
             }}
           >
             取消
@@ -87,24 +96,24 @@ export default function CollapsePanel(props) {
       )}
       <DraggableList
         initial={data.initial}
-        editable={data.content === currentPath}
+        editable={data.id === currentPath}
         withIcon={false}
         onDelete={value => {
           const deletedIndex = value.id;
-          props.onListChange(data.content, 'deleteNode', [deletedIndex]);
+          props.onListChange(data.id, 'deleteNode', [deletedIndex]);
         }}
         onDrag={value => {
           if (value.destination) {
             const srcIndex = value.source.index;
             const dstIndex = value.destination.index;
-            props.onListChange(data.content, 'dragNode', [srcIndex, dstIndex]);
+            props.onListChange(data.id, 'dragNode', [srcIndex, dstIndex]);
           }
         }}
       />
     </div>
   );
 
-  const header = id => (
+  const header = (id, title) => (
     <div className="header">
       <Radio
         disabled={currentPath !== ''}
@@ -116,7 +125,7 @@ export default function CollapsePanel(props) {
           }
         }}
       />
-      <span>{id}</span>
+      <span>{title}</span>
     </div>
   );
 
@@ -145,6 +154,9 @@ export default function CollapsePanel(props) {
             props.onListChange(pathname, 'new');
           }
         }}
+        onCancel={() => {
+          close();
+        }}
       />
       <Collapse
         iconPosition="right"
@@ -155,7 +167,7 @@ export default function CollapsePanel(props) {
         }}
       >
         {nodeLists.map(data => (
-          <Collapse.Panel key={data.content} id={data.content} title={header(data.content)}>
+          <Collapse.Panel key={data.id} id={data.content} title={header(data.id, data.content)}>
             {content(data)}
           </Collapse.Panel>
         ))}

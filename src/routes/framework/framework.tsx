@@ -1,3 +1,4 @@
+import BreadcrumbPage from '@src/components/crumb';
 import DashboardPage from '@src/components/dashboard';
 import { fetchData } from '@src/components/dashboard/fetch';
 import { useApi } from '@src/services/api/useApi';
@@ -6,7 +7,11 @@ import React, { useEffect, useState } from 'react';
 import BusinessCard from './business';
 import './framework.less';
 const { Body, Content } = Layout;
-
+const crumb = [
+  { name: '银行', link: '/main' },
+  { name: '行业资产', link: '/framework' },
+  { name: '系统架构', link: '/framework' },
+];
 const FrameworkContent: React.FC<{
   name?: string;
 }> = props => {
@@ -37,9 +42,9 @@ const FrameworkContent: React.FC<{
 
   const selectBusiness = name => {
     Promise.all([getApp(), getProperty()]).then(values => {
-      const systems = values[0].filter(item => item['business'] == name);
-      const properties = values[1].filter(item => item['business'] == name);
-      const result = systems.map(item => item['systemName']).concat(properties.map(item => item['propertyName']));
+      const systems = values[0].filter(item => item.business == name);
+      const properties = values[1].filter(item => item.business == name);
+      const result = systems.map(item => item.systemName).concat(properties.map(item => item.propertyName));
       setBusiness(result);
     });
   };
@@ -56,7 +61,13 @@ const FrameworkContent: React.FC<{
         >
           编辑
         </Button>
-        <Content.Header title="系统架构"></Content.Header>
+        <Content.Header
+          subtitle={
+            <>
+              <BreadcrumbPage crumbs={crumb} />
+            </>
+          }
+        ></Content.Header>
         <div className="framework-content">
           <BusinessCard name={props.name} onChange={name => selectBusiness(name)} />
           <DashboardPage

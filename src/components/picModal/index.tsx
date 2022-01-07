@@ -6,22 +6,26 @@ const PicModal: React.FC<any> = props => {
   const [choseItem, setChoseItem] = useState(null);
   const [theClick, setTheClick] = useState('');
 
+  // 点击图片的回调
   const handleItemClick = (data: string, index: number) => {
     setTheClick(data);
     setChoseItem(index);
   };
 
+  // 保存图片的回调
   const handleSavePic = () => {
     setShow(false);
     props.saveChose(theClick);
   };
 
+  // 关闭图片modal的回调
   const closePic = () => {
     setShow(false);
     setTheClick('');
     setChoseItem(null);
     props.close();
   };
+  // props.picV 变化的回调
   useEffect(() => {
     setShow(props.picV);
   }, [props.picV]);

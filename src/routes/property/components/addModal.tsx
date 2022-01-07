@@ -1,9 +1,7 @@
 import { useApi } from '@src/services/api/useApi';
 import { filterTheTrade } from '@src/utils/util';
-import { Button, Cascader, Form, Input, message, Modal, Select, Bubble } from '@tencent/tea-component';
+import { Button, Cascader, Form, Input, message, Modal, Select } from '@tencent/tea-component';
 import React, { useEffect, useState } from 'react';
-import { propertyKindsOptions } from '@src/components/tableCommon/globalData';
-import AddPic from '@src/components/formItemAddPic';
 
 type PropertyType = {
   propertyId?: string;
@@ -18,7 +16,6 @@ type PropertyType = {
   editedAt?: string | number;
   safetyTrade?: string;
   theBusinessId?: string;
-  picName?: string;
 };
 type Business = {
   businessId?: string;
@@ -54,7 +51,6 @@ type GapType = {
   editData?: string;
   safetyTrade?: string;
   theBusinessId?: string;
-  picName?: string;
 };
 
 export default function AddModal(props) {
@@ -66,14 +62,12 @@ export default function AddModal(props) {
   const [belongSelect, setBelongSelect] = useState('');
   const [belongFieldA, setBelongFieldA] = useState('');
   const [belongFieldB, setBelongFieldB] = useState('');
-
+  const [kindOption, setKindOption] = useState('');
   const [belongOption, setBelongOption] = useState([]);
   const [cascaderProperty, setCascaderProperty] = useState([]);
   const [theBusinessId, setTheBusinessId] = useState('');
   const [doSave, setDoSave] = useState(false);
   const [preName, setPreName] = useState('');
-  const [propertyKind, setPropertyKind] = useState('');
-  const [picName, setPicName] = useState('');
 
   // 修改gap表数据
   const handleGapTable = (type, data) => {
@@ -94,7 +88,7 @@ export default function AddModal(props) {
       theBusinessId: data.theBusinessId,
     };
     if (type === 'add') {
-      add(request, true)
+      add(request)
         .then(() => {
           message.success({ content: '成功' });
         })
@@ -117,7 +111,7 @@ export default function AddModal(props) {
               request.editData = item.editData;
               request.editedAt = item.editedAt;
               request.editMen = item.editMen;
-              update(request, true)
+              update(request)
                 .then(() => {
                   message.success({ content: '成功' });
                 })
@@ -146,6 +140,8 @@ export default function AddModal(props) {
       fetchList();
     }
   }, [props.visible]);
+
+  // 将资产和业务转换成下拉框数组fn
   const getSelecOptions = data => {
     if (!data) {
       return;
@@ -172,25 +168,29 @@ export default function AddModal(props) {
           setBelongFieldB(item.part);
         }
       });
-    } else {
-      setPropertyKind(v);
+    }
+    if (attr === 'kindOption') {
+      setKindOption(v);
     }
   };
   // 资产类型选择
   const handleCascaderChange = (v): void => {
     setCascaderProperty(v);
   };
+
+  // 初始化数据
   const init = () => {
     setTheName('');
     setBelongSelect('');
     setBelongFieldA('');
     setBelongFieldB('');
+    setKindOption('');
     setCascaderProperty([]);
     setTheBusinessId('');
     setDoSave(false);
     setPreName('');
-    setPicName('');
   };
+  // 添加modal关闭时的回调
   const close = () => {
     props.close();
     init();
@@ -230,6 +230,7 @@ export default function AddModal(props) {
     return true;
   };
 
+  // 保存时执行的回调
   const handleSave = () => {
     setDoSave(true);
     if (theName.trim() === '') {
@@ -241,7 +242,7 @@ export default function AddModal(props) {
     if (props.comName === 'property' && cascaderProperty.join('/').trim() === '') {
       return false;
     }
-    if (picName.trim() === '') {
+    if (kindOption.trim() === '' && props.comName !== 'property') {
       return false;
     }
     if (!checkSave()) {
@@ -255,7 +256,6 @@ export default function AddModal(props) {
         businessKinds: belongFieldA.trim(),
         part: belongFieldB.trim(),
         propertyKind: cascaderProperty.join('/').trim(),
-        picName: picName,
         editMen: 'shanehwang',
         editedAt: +new Date(),
       };
@@ -282,7 +282,6 @@ export default function AddModal(props) {
         createdAt: +new Date(),
         safetyTrade: props.trade,
         theBusinessId: theBusinessId,
-        picName: picName,
       };
 
       add(request)
@@ -297,6 +296,8 @@ export default function AddModal(props) {
         });
     }
   };
+
+  // 数据更新时的回调
   useEffect(() => {
     if (props.theData && props.isEdit) {
       setTheName(props.theData.propertyName);
@@ -306,21 +307,10 @@ export default function AddModal(props) {
       setCascaderProperty(props.theData.propertyKind.split('/'));
       setTheBusinessId(props.theData.theBusinessId);
       setPreName(props.theData.propertyName);
-      setPicName(props.theData.picName || '');
     }
   }, [props.theData]);
 
-  const handleAddPicSave = (data: any) => {
-    console.log('save', data);
-    setPicName(data);
-  };
-
-  const addPicConfig = {
-    canEdit: true,
-    picName: picName,
-    doSave: doSave,
-    save: (data: any) => handleAddPicSave(data),
-  };
+  // 返回页面dom节点
   const templageFn = () => {
     return (
       <>
@@ -333,7 +323,7 @@ export default function AddModal(props) {
             <Input
               className="w-330"
               value={theName}
-              onChange={(value, context) => {
+              onChange={value => {
                 setTheName(value);
               }}
               placeholder="请输入资产名称"
@@ -358,20 +348,7 @@ export default function AddModal(props) {
             />
           </Form.Item>
           <Form.Item
-            label={
-              <Select
-                value={propertyKind}
-                matchButtonWidth
-                appearance="button"
-                placeholder="资产类型"
-                options={propertyKindsOptions}
-                onChange={value => {
-                  handleSelectChange(value, 'propertyKind');
-                }}
-                // className="w-330"
-                size="s"
-              />
-            }
+            label="资产类型"
             message={doSave ? (cascaderProperty.length !== 0 ? null : '请选择资产类型') : null}
             status={doSave ? (cascaderProperty.length !== 0 ? null : 'error') : null}
           >
@@ -388,7 +365,6 @@ export default function AddModal(props) {
               }}
             />
           </Form.Item>
-          <AddPic {...addPicConfig}></AddPic>
         </Form>
       </>
     );

@@ -53,11 +53,12 @@ const AreaPage: React.FC = () => {
     fetchList();
   }, []);
 
+  // 添加分区modal关闭时的回调
   const handleModalClose = () => {
     setShowModal(false);
-    // setTradeData(null);
   };
 
+  // 添加分区modal保存时的回调
   const handleSave = () => {
     fetchList();
   };
@@ -96,7 +97,7 @@ const AreaPage: React.FC = () => {
   const propsConfig = {
     list: dataList,
     recordKey: 'areaId',
-    columns: ['areaId', 'areaName', 'systemAndProperty', 'addMen', 'createdAt', 'editMen', 'editedAt', 'action'],
+    columns: ['areaId', 'areaName', 'systemAndProperty', 'addMen', 'createdAt', 'editMen', 'editedAt', 'action'], //列表所需展示的字段
     left: (
       <>
         <Button type="primary" onClick={onAdd}>

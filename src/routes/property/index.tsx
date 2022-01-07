@@ -1,6 +1,6 @@
 import BreadcrumbPage from '@src/components/crumb';
 import TableCommon from '@src/components/tableCommon';
-import { propertyOption } from '@src/components/tableCommon/globalData';
+import { PROPERTY_OPTION } from '@src/components/tableCommon/globalData';
 import { useApi } from '@src/services/api/useApi';
 import { Button, Card, Cascader, Layout, message, SearchBox } from '@tencent/tea-component';
 import React, { useEffect, useState } from 'react';
@@ -69,16 +69,18 @@ const PropertyPage: React.FC = () => {
     fetchList();
   }, []);
 
+  // allList变化时执行回调
   useEffect(() => {
     let arr = filterDataList(allList);
     setDataList([...arr]);
   }, [allList]);
 
+  // 关闭添加modal的回调
   const handleModalClose = () => {
     setShowModal(false);
-    // setTradeData(null);
   };
 
+  // 执行保存时的回调
   const handleSave = () => {
     fetchList();
   };
@@ -131,6 +133,7 @@ const PropertyPage: React.FC = () => {
     });
     return filterArr;
   };
+  // 执行筛选时的fn
   const filterItem = (arr, attr, value) => {
     if (!arr) {
       return [];
@@ -153,6 +156,7 @@ const PropertyPage: React.FC = () => {
     setHeaderSelect(str);
   };
 
+  // 筛选输入框值变化时的回调
   useEffect(() => {
     let arr = filterDataList(allList);
     setDataList([...arr]);
@@ -227,7 +231,7 @@ const PropertyPage: React.FC = () => {
         <Cascader
           clearable
           type="menu"
-          data={propertyOption}
+          data={PROPERTY_OPTION}
           multiple={false}
           onChange={value => {
             handleSelectChange(value);
@@ -266,7 +270,7 @@ const PropertyPage: React.FC = () => {
                 theData={modalData}
                 allData={allList}
                 visible={showModal}
-                propertyOption={propertyOption}
+                propertyOption={PROPERTY_OPTION}
                 comName={'property'}
                 trade={trade}
               />

@@ -1,7 +1,7 @@
 import BreadcrumbPage from '@src/components/crumb';
 import TableCommon from '@src/components/tableCommon';
 import { useApi } from '@src/services/api/useApi';
-import { Button, Card, Layout, message, SearchBox, Select } from '@tencent/tea-component';
+import { Button, Card, Layout, message, SearchBox } from '@tencent/tea-component';
 import React, { useEffect, useState } from 'react';
 import cookie from 'react-cookies';
 import AddModal from './components/addModal';
@@ -30,7 +30,7 @@ const AppPage: React.FC = () => {
   const [allList, setAllList] = useState<RecordType[]>();
   const { getAll, deleteRecord } = useApi('app');
   const val = cookie.load('safetyTrade');
-  const [trade, setTrade] = useState(val);
+  const [trade] = useState(val);
 
   const [inputOne, setInputOne] = useState('');
   const [inputTwo, setInputTwo] = useState('');

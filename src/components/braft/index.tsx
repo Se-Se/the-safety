@@ -7,12 +7,14 @@ const FancyButton = React.forwardRef((props: any, ref: any): any => {
   const val = BraftEditor.createEditorState(null);
   const [editorState, setEditorState] = useState(val);
 
+  // 文本编辑器props.editData数据变化的回调
   useEffect(() => {
     const htmlContent = props.editData;
     const html = BraftEditor.createEditorState(htmlContent);
     setEditorState(html);
   }, [props.editData]);
 
+  // 数据变化的回调
   const handleEditorChange = data => {
     setEditorState(data);
   };

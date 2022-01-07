@@ -1,4 +1,4 @@
-import { add, clear, deleteRecord, getAll, getByIndex, login, update, addAll } from './apis';
+import { add, addAll, clear, deleteRecord, getAll, getByIndex, update } from './apis';
 
 export function useApi(dbName?: string) {
   return {
@@ -9,6 +9,5 @@ export function useApi(dbName?: string) {
     deleteRecord: (data: (string | number)[], hide?: boolean) => deleteRecord(dbName, data, hide),
     getByIndex: (data: any, hide?: boolean) => getByIndex(dbName, data, hide),
     clear: (hide?: boolean) => clear(dbName, hide),
-    login: (data: any, hide?: boolean) => login(data, hide),
   };
 }

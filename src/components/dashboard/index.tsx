@@ -1,5 +1,6 @@
+import { activeChange } from '@src/utils/util';
 import cls from 'classnames';
-import React from 'react';
+import React, { useEffect } from 'react';
 import Line from '../line/line';
 import AreaCard from './area';
 import GroupCard from './group';
@@ -17,13 +18,17 @@ const DashboardPage: React.FC<{
   linkSource?: Array<any>;
   markers?: Array<any>;
   stroke?: any;
-  maximumGap?: any;
-  minimalGap?: any;
   track?: Array<any>;
 }> = props => {
   const width = 4000;
   const cols = 4000;
 
+  //dataSource groupSource 变化时分区与大区高度取较大的高度
+  useEffect(() => {
+    setTimeout(() => {
+      activeChange();
+    }, 1000);
+  }, [props.dataSource, props.groupSource]);
   return (
     <div className={cls('dashboard-content', { edit: props.edit, group: props.group })}>
       <AreaCard
@@ -55,8 +60,7 @@ const DashboardPage: React.FC<{
               active={edge.active}
               swipe={edge.dir}
               stroke={props.stroke}
-              maximumGap={props.maximumGap}
-              minimalGap={props.minimalGap}
+              type={edge.type}
             />
           ));
         })}

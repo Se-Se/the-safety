@@ -307,7 +307,7 @@ export default function AddModal(props) {
               <Input
                 className="w-330"
                 value={systemN}
-                onChange={(value, context) => {
+                onChange={value => {
                   setSystemN(value);
                 }}
                 placeholder="请输入系统名称"

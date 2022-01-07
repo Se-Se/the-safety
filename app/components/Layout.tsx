@@ -1,4 +1,5 @@
-import { Layout as TeaLayout, NavMenu } from '@tencent/tea-component';
+import { toLogout } from '@src/utils/util';
+import { Layout as TeaLayout, List, NavMenu } from '@tencent/tea-component';
 import React from 'react';
 import cookie from 'react-cookies';
 import { RouteComponentProps, withRouter } from 'react-router-dom';
@@ -13,12 +14,20 @@ interface LayoutProps extends RouteComponentProps<any> {
 }
 
 export default withRouter<LayoutProps, React.ComponentType<LayoutProps>>(function Layout({ history, menu, children }) {
-  const isMain = history.location.pathname === '/main' ? false : true;
-  const isEdit = history.location.pathname === '/edit' ? false : true;
+  const { pathname } = history.location;
+  const isMain = pathname === '/main' ? false : true;
+  const isEdit = pathname === '/edit' ? false : true;
   const val = cookie.load('safetyTrade');
-  if (history.location.pathname !== '/main' && !val) {
+  const userName = cookie.load('u_name');
+
+  if (pathname === '/403') {
+    return <>{children}</>;
+  }
+
+  if (!val && '/main' !== pathname) {
     history.push('/main');
   }
+
   return (
     <TeaLayout>
       <Header>
@@ -28,6 +37,25 @@ export default withRouter<LayoutProps, React.ComponentType<LayoutProps>>(functio
               <img className="menu-logo" src={require('./logo.png')} alt="logo" />
               <span className="menu-title">{menu.title}</span>
             </div>
+          }
+          right={
+            <NavMenu.Item
+              type="dropdown"
+              overlay={close => (
+                <List type="option">
+                  <List.Item
+                    onClick={() => {
+                      close();
+                      toLogout();
+                    }}
+                  >
+                    退出
+                  </List.Item>
+                </List>
+              )}
+            >
+              {userName || ''}
+            </NavMenu.Item>
           }
         />
       </Header>

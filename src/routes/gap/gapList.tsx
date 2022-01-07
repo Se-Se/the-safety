@@ -1,6 +1,6 @@
 import BreadcrumbPage from '@src/components/crumb';
 import TableCommon from '@src/components/tableCommon';
-import { systemOrPropertyOption } from '@src/components/tableCommon/globalData';
+import { SYSTEM_PROPERTY_OPTION } from '@src/components/tableCommon/globalData';
 import { useApi } from '@src/services/api/useApi';
 import { useHistory } from '@tea/app';
 import { Card, Layout, message, SearchBox, Select } from '@tencent/tea-component';
@@ -63,19 +63,23 @@ const GapList: React.FC = () => {
     fetchList();
   }, []);
 
+  // allList变化时执行回调
   useEffect(() => {
     let arr = filterDataList(allList);
     setDataList([...arr]);
   }, [allList]);
 
+  // 添加modal关闭时的回调
   const handleModalClose = () => {
     setShowModal(false);
   };
 
+  // 保存时的回调
   const handleSave = () => {
     fetchList();
   };
 
+  // 执行编辑时的fn
   const handleEdit = data => {
     setModalData({ ...data });
     setIsEdit(true);
@@ -109,6 +113,7 @@ const GapList: React.FC = () => {
     });
     return filterArr;
   };
+  // 筛选数据执行的fn
   const filterItem = (arr, attr, value) => {
     if (!arr) {
       return [];
@@ -135,6 +140,8 @@ const GapList: React.FC = () => {
     // history.push(`/gap/${data.gapId}`);
     history.push({ pathname: `/gap/${data.gapId}`, state: { from: 'gapList' } });
   };
+
+  // 搜索框变化时执行的回调
   useEffect(() => {
     let arr = filterDataList(allList);
     setDataList([...arr]);
@@ -190,7 +197,7 @@ const GapList: React.FC = () => {
           onChange={v => {
             handleSelectChange(v);
           }}
-          options={systemOrPropertyOption}
+          options={SYSTEM_PROPERTY_OPTION}
         />
       </>
     ),

@@ -23,6 +23,7 @@ export default function AddModal(props) {
   const [doSave, setDoSave] = useState(false);
   const [preName, setPreName] = useState('');
 
+  // 初始话数据
   const init = () => {
     setBusinessN('');
     setThePart('');
@@ -30,6 +31,7 @@ export default function AddModal(props) {
     setDoSave(false);
     setPreName('');
   };
+  // 关闭modal的回调
   const close = () => {
     props.close();
     init();
@@ -68,6 +70,7 @@ export default function AddModal(props) {
     return true;
   };
 
+  // 保存按钮执行的fn
   const handleSave = () => {
     setDoSave(true);
     if (businessN.trim() === '') {
@@ -124,6 +127,8 @@ export default function AddModal(props) {
         });
     }
   };
+
+  // 数据更新的回调
   useEffect(() => {
     if (props.theData && props.isEdit) {
       setBusinessN(props.theData.businessName);

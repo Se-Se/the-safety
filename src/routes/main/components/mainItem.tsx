@@ -2,11 +2,13 @@ import { Bubble, Button, Card } from '@tencent/tea-component';
 import React from 'react';
 
 export default function ManiItem(props) {
+  // 点击编辑btn的回调
   const edit = (ev: any) => {
     ev.stopPropagation();
     props.edit();
   };
 
+  // 关闭modal的回调
   const close = (ev: any) => {
     ev.stopPropagation();
     props.close();

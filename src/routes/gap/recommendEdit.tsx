@@ -21,12 +21,14 @@ const RecommendEdit: React.FC = () => {
   const braftRef = useRef(null);
   const [canEdit, setCanEdit] = useState(false);
 
+  // 获取页面数据
   const fetchData = () => {
     getAll().then(res => {
       filterData(res);
     });
   };
 
+  // 筛选数据
   const filterData = arr => {
     if (!arr.length) {
       return;
@@ -39,17 +41,20 @@ const RecommendEdit: React.FC = () => {
     });
   };
 
+  // 页面初次加载时执行
   useEffect(() => {
     fetchData();
     checkFrom();
   }, []);
 
+  // editData，doSave更新时回调
   useEffect(() => {
     if (editData && doSave) {
       handleSave();
     }
   }, [editData, doSave]);
 
+  // 判断进入页面的上一个页面fn
   const checkFrom = () => {
     if (history.location.state && history.location.state.from === 'gapList') {
       setCanEdit(true);
@@ -58,6 +63,7 @@ const RecommendEdit: React.FC = () => {
     }
   };
 
+  // 保存的fn
   const handleSave = () => {
     update({ ...gapData, editData: editData })
       .then(() => {
@@ -68,6 +74,7 @@ const RecommendEdit: React.FC = () => {
         message.error({ content: `失败${err}` });
       });
   };
+  // 编辑器执行保存时的fn
   const save = () => {
     setDoSave(true);
     setEditData(braftRef.current.getValue().toHTML());

@@ -49,6 +49,7 @@
     "core-js": "^3.6.5",
     "final-form": "^4.20.6",
     "history": "^4.9.0",
+    "jquery": "^3.6.0",
     "lodash-es": "^4.17.21",
     "moment": "^2.24.0",
     "pinyin-pro": "^3.3.1",

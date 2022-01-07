@@ -10,6 +10,7 @@ import 'regenerator-runtime/runtime';
 import './app.less';
 // 导入导航配置
 import { menu } from './configs/menu';
+import Permission from './routes/403';
 // 导入组件
 import AppPage from './routes/app';
 import AreaPage from './routes/area';
@@ -24,18 +25,11 @@ import MainPage from './routes/main';
 import PropertyPage from './routes/property';
 import RecommendPage from './routes/recommend';
 import ScenesPage from './routes/scenes';
-import { initAppDefaultDisplay, initDatabase } from './services/db';
-
-// 初始化本地数据库结构
-initDatabase();
-// 按需初始化数据
-setTimeout(() => {
-  initAppDefaultDisplay(true);
-}, 100);
 
 // 路由表，一个路由对应一个组件
 const routes = {
   '/': () => <Redirect to="/main" />,
+  '/403': Permission,
   '/business': BusinessPage,
   '/app': AppPage,
   '/data': DataPage,

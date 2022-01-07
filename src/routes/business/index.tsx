@@ -30,7 +30,7 @@ const BusinessPage: React.FC = () => {
   const [allList, setAllList] = useState<RecordType[]>();
   const { getAll, deleteRecord } = useApi('business');
   const val = cookie.load('safetyTrade');
-  const [trade, setTrade] = useState(val);
+  const [trade] = useState(val);
 
   const [businessN, setBusinessN] = useState('');
   const [selectPart, setSelectPart] = useState('');
@@ -59,11 +59,12 @@ const BusinessPage: React.FC = () => {
     setDataList([...arr]);
   }, [allList]);
 
+  // 添加modal关闭时的回调
   const handleModalClose = () => {
     setShowModal(false);
-    // setTradeData(null);
   };
 
+  // 添加modal保存时的回调
   const handleSave = () => {
     fetchList();
   };
@@ -89,6 +90,7 @@ const BusinessPage: React.FC = () => {
     }
   };
 
+  // 搜索筛选数据的fn
   const filterDataList = (arr: any) => {
     if (!arr) {
       return [];
@@ -132,6 +134,8 @@ const BusinessPage: React.FC = () => {
   const handleSelectItems = data => {
     setCheckItem(data);
   };
+
+  // 执行删除fn
   const handleDelete = (): void => {
     if (checkItem.length) {
       deleteRecord(checkItem)
@@ -144,8 +148,9 @@ const BusinessPage: React.FC = () => {
         });
     }
   };
+  // 展示系统架构图的fn
   const handleShowPic = (data): void => {
-    window.location.href = `/framework/${data['businessName']}`;
+    window.location.href = `/framework/${data.businessName}`;
   };
 
   const propsConfig = {
@@ -160,7 +165,6 @@ const BusinessPage: React.FC = () => {
       'createdAt',
       'editMen',
       'editedAt',
-      // 'businessPic',
       'action',
     ],
     right: (

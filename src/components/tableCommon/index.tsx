@@ -16,6 +16,7 @@ type RecordType = {
 };
 
 const TableCommon: React.FC<any> = props => {
+  // 根据传入的columns获取当前table所要展示的字段fn
   const getColumns = (columns: any) => {
     const allColumns = [
       // business
@@ -228,7 +229,7 @@ const TableCommon: React.FC<any> = props => {
 
     arr.map(item => {
       if (item.key === 'action') {
-        item.render = (record: any, key: any, index: any) => (
+        item.render = (record: any) => (
           <>
             <Button
               type="link"
@@ -243,7 +244,7 @@ const TableCommon: React.FC<any> = props => {
         );
       }
       if (item.key === 'recommendAction') {
-        item.render = (record: any, key: any, index: any) => (
+        item.render = (record: any) => (
           <>
             <Button
               type="link"
@@ -314,6 +315,7 @@ const TableCommon: React.FC<any> = props => {
     return arr;
   };
 
+  // 根据传入的props.columns获取当前的表格字段
   const arr = getColumns(props.columns);
   const [selectedKeys, setSelectedKeys] = useState([]);
 

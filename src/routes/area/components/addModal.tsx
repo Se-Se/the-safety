@@ -55,6 +55,7 @@ export default function AddModal(props) {
     }
   }, [props.visible]);
 
+  // 将所有的资产和系统整合成下拉框的数组方法
   const getSelecOptions = (data, attr) => {
     if (!data) {
       return;
@@ -97,8 +98,8 @@ export default function AddModal(props) {
       }
     }
   };
-  // 资产类型选择
 
+  // 初始话数据
   const init = () => {
     setTheName('');
     setBelongSelect([]);
@@ -106,6 +107,7 @@ export default function AddModal(props) {
     setDoSave(false);
     setPreName('');
   };
+  // 关闭分区modal的回调
   const close = () => {
     props.close();
     init();
@@ -146,6 +148,7 @@ export default function AddModal(props) {
     return true;
   };
 
+  // 点击保存按钮执行的方法
   const handleSave = () => {
     setDoSave(true);
     if (theName.trim() === '') {
@@ -203,6 +206,8 @@ export default function AddModal(props) {
         });
     }
   };
+
+  // 数据更新的回调
   useEffect(() => {
     if (props.theData && props.isEdit) {
       setTheName(props.theData.areaName);
@@ -211,6 +216,8 @@ export default function AddModal(props) {
       setPreName(props.theData.areaName);
     }
   }, [props.theData]);
+
+  // dom节点的fn
   const templageFn = () => {
     return (
       <Form>
@@ -222,7 +229,7 @@ export default function AddModal(props) {
           <Input
             className="w-330"
             value={theName}
-            onChange={(value, context) => {
+            onChange={value => {
               setTheName(value);
             }}
             placeholder="请输入分区名称"

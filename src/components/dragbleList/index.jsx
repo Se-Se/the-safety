@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import './index.less';
 
+// 交换后排序
 const reorder = (list, startIndex, endIndex) => {
   const result = Array.from(list);
   const [removed] = result.splice(startIndex, 1);
@@ -11,11 +12,13 @@ const reorder = (list, startIndex, endIndex) => {
   return result;
 };
 
-const Item = ({ quote, index, editable, withIcon, onDelete }) => {
+// 节点元素 quote:节点文字内容，editable：是否可以被编辑，决定元素显示风格
+// onDelete：删除某个元素回调
+const Item = ({ quote, editable, onDelete }) => {
   const style = { color: '#888888' };
   const widthStyle = { maxWidth: editable ? 100 : null };
   const marginStyle = { marginLeft: editable ? 0 : -20 };
-  
+
   return (
     <div className="d-container" style={marginStyle}>
       {editable && <div className="bg"></div>}
@@ -42,6 +45,9 @@ const Item = ({ quote, index, editable, withIcon, onDelete }) => {
   );
 };
 
+// Draggable 列表，quotes：列表数据，用于列表元素绘制，editable：是否可以被编辑，决定元素显示风格
+// onDelete：删除某个元素回调
+// withIcon: 列表内元素是否显示特定图标，true：显示特定图标，false：显示序号，从0开始
 const ItemList = ({ quotes, editable, withIcon, onDelete }) => {
   return quotes.map((quote, index) => {
     let itemClass;
@@ -54,13 +60,7 @@ const ItemList = ({ quotes, editable, withIcon, onDelete }) => {
       <Draggable draggableId={quote.id} key={quote.id + index} index={index} isDragDisabled={!editable}>
         {provided => (
           <div className={itemClass} ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-            <Item
-              quote={quote}
-              index={index}
-              editable={editable}
-              withIcon={withIcon}
-              onDelete={value => onDelete(value)}
-            />
+            <Item quote={quote} editable={editable} onDelete={value => onDelete(value)} />
           </div>
         )}
       </Draggable>
@@ -68,12 +68,14 @@ const ItemList = ({ quotes, editable, withIcon, onDelete }) => {
   });
 };
 
+// 通过DnD实现的可拖拽列表，initial是初始显示列表， editable：列表是否可以被修改，会影响元素显示风格，
+// onDelete：删除某个元素回调， onDrag：拖动元素后的回调
+// withIcon: 列表内元素是否显示特定图标，true：显示特定图标，false：显示序号，从0开始
 function DraggableList({ initial, editable, onDelete, withIcon, onDrag }) {
   const [state, setState] = useState({ quotes: [] });
 
   useEffect(() => {
     if (initial) {
-      // 如何保持顺序呢？
       setState({ quotes: initial });
     }
   }, [initial]);
@@ -89,7 +91,6 @@ function DraggableList({ initial, editable, onDelete, withIcon, onDrag }) {
     });
 
     setState({ quotes });
-
     onDrag(result);
   }
 

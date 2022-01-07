@@ -6,10 +6,12 @@ import GapList from './gapList';
 import RecommendEdit from './recommendEdit';
 const { Body } = Layout;
 
+// 攻击手法与漏洞的列表
 function ListPage() {
   return <GapList></GapList>;
 }
 
+// 文本编辑器
 function Editview() {
   return <RecommendEdit></RecommendEdit>;
 }

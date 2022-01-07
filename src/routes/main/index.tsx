@@ -1,7 +1,6 @@
-import { tradeOptions } from '@src/components/tableCommon/globalData';
+import { TRADE_OPTIONS } from '@src/components/tableCommon/globalData';
 import MainModal from '@src/routes/main/components/addModal';
 import { useApi } from '@src/services/api/useApi';
-import { initTheDbData } from '@src/utils/util';
 import { useHistory } from '@tea/app';
 import { Button, Layout, message } from '@tencent/tea-component';
 import React, { useEffect, useState } from 'react';
@@ -18,24 +17,13 @@ type RecordType = {
 };
 
 const MainPage: React.FC = () => {
-  const { getAll, deleteRecord, login, getByIndex } = useApi('trade');
+  const { getAll, deleteRecord, getByIndex } = useApi('trade');
   const [showModal, setShowModal] = useState(false);
   const [dataList, setDataList] = useState<RecordType[]>();
   const [tradeData, setTradeData] = useState(null);
   const [isEdit, setIsEdit] = useState(false);
   const [allData, setAllData] = useState([]);
   const history = useHistory();
-
-  const handleLogin = () => {
-    login({ userName: 'beyond', password: '123456' })
-      .then((res: any) => {
-        console.log(res);
-        cookie.save('sec_token', res.token);
-      })
-      .catch(err => {
-        console.log(err);
-      });
-  };
 
   // 拉取数据
   const fetchList = () => {
@@ -51,11 +39,12 @@ const MainPage: React.FC = () => {
       });
   };
 
+  // 把数据格式话成页面所需的形式fn
   const formatterList = arr => {
     if (!arr.length) {
       return [];
     }
-    let vals = tradeOptions.map(item => {
+    let vals = TRADE_OPTIONS.map(item => {
       return item.value;
     });
     let result = [];
@@ -77,26 +66,32 @@ const MainPage: React.FC = () => {
     return result;
   };
 
+  // 页面初次载入时的回调
   useEffect(() => {
     fetchList();
   }, []);
 
+  // 点击添加行业按钮fn
   const onAdd = () => {
     setIsEdit(false);
     setShowModal(true);
   };
+  // 关闭添加行业modal的回调
   const handleModalClose = () => {
     setShowModal(false);
     setTradeData(null);
   };
+  // 点击保存btn的回调
   const handleSave = () => {
     fetchList();
   };
+  // 点击编辑btn的执行fn
   const handleEdit = (data: any) => {
     setTradeData(data);
     setShowModal(true);
     setIsEdit(true);
   };
+  // 关闭modal页面的回调
   const handleClose = async data => {
     let theSafetyTrade = '';
     await getByIndex(data.id).then((res: any) => {
@@ -125,13 +120,12 @@ const MainPage: React.FC = () => {
     });
   };
 
+  // 点击行业卡片的回调
   const choseTrade = (data: any) => {
     cookie.save('safetyTrade', data);
     history.push('/business');
   };
-  const addData = () => {
-    initTheDbData('dashboard');
-  };
+
   return (
     <Body>
       <Content>
@@ -142,12 +136,6 @@ const MainPage: React.FC = () => {
               <Button type="primary" onClick={onAdd}>
                 新增行业
               </Button>
-              <Button type="primary" onClick={handleLogin}>
-                登录
-              </Button>
-              {/* <Button type="primary" onClick={addData}>
-                添加数据
-              </Button> */}
             </>
           }
         ></Content.Header>

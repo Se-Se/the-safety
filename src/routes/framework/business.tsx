@@ -30,8 +30,8 @@ const BusinessCard: React.FC<{
 
   return (
     <div className="business-select">
-      {dataList.map((item, index) => {
-        const name = item['businessName'];
+      {dataList.map((item: any, index) => {
+        const name = item.businessName;
         return (
           <div
             key={index}

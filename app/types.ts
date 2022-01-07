@@ -31,7 +31,7 @@ export interface AppMenuItem {
   /**
    * 菜单打开的目标位置，默认为 _self 在当前页面打开，配置为 _blank
    */
-  target?: "_self" | "_blank";
+  target?: '_self' | '_blank';
 
   /**
    * 是否渲染一个“外部链接”图标

@@ -16,16 +16,21 @@ function getStatus(meta, validating) {
 }
 
 export default function AddPathName(props) {
+  // visible: 是否初始可见， existedNames: 已经被占用的路径名字
   const { visible, existedNames } = props;
   async function onSubmit(values) {
     await sleep(500);
     props.onConfirmed(values);
+    // reset form
+    form.reset();
+    form.resetFieldState('name');
   }
 
+  // 输入验证
   const validateFn = input => {
     let { name } = input;
     let valid = name && name.length > 0 && existedNames.findIndex(elem => elem === name) === -1;
-    let state = valid ? undefined : '路径名不合法';
+    let state = valid ? undefined : '路径名为空或已被占用';
     return {
       name: state,
     };
@@ -33,11 +38,6 @@ export default function AddPathName(props) {
 
   const { form, handleSubmit, validating, submitting } = useForm({
     onSubmit,
-    /**
-     * 默认为 shallowEqual
-     * 如果初始值有多层，会导致重渲染，也可以使用 `useEffect` 设置初始值：
-     * useEffect(() => form.initialize({ }), []);
-     */
     initialValuesEqual: () => true,
     initialValues: { name: '' },
     validate: validateFn,
@@ -47,14 +47,7 @@ export default function AddPathName(props) {
 
   return (
     <div className="example-stage">
-      <Modal
-        maskClosable
-        visible={visible}
-        size="m"
-        disableCloseIcon={true}
-        caption="输入路径名"
-        onClose={() => props.onConfirmed()}
-      >
+      <Modal maskClosable visible={visible} size="m" disableCloseIcon={true} caption="输入路径名">
         <form onSubmit={handleSubmit}>
           <Form>
             <Form.Item
@@ -69,7 +62,16 @@ export default function AddPathName(props) {
             <Button type="primary" htmlType="submit" loading={submitting} disabled={validating}>
               提交
             </Button>
-            <Button type="weak" onClick={() => props.onConfirmed()}>
+            <Button
+              type="weak"
+              onClick={e => {
+                e.preventDefault();
+                props.onCancel();
+                // reset form
+                form.reset();
+                form.resetFieldState('name');
+              }}
+            >
               取消
             </Button>
           </Form.Action>

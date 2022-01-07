@@ -22,7 +22,7 @@ type DataType = {
 const crumb = [
   { name: '银行', link: '/main' },
   { name: '行业资产', link: '/business' },
-  { name: '数据业务', link: '/data' },
+  { name: '业务数据', link: '/data' },
 ];
 
 const DataPage: React.FC = () => {
@@ -30,7 +30,7 @@ const DataPage: React.FC = () => {
   const [allList, setAllList] = useState<DataType[]>();
   const { getAll, deleteRecord } = useApi('data');
   const val = cookie.load('safetyTrade');
-  const [trade, setTrade] = useState(val);
+  const [trade] = useState(val);
 
   const [inputOne, setInputOne] = useState('');
   const [inputTwo, setInputTwo] = useState('');
@@ -61,9 +61,9 @@ const DataPage: React.FC = () => {
   }, [allList]);
   const handleModalClose = () => {
     setShowModal(false);
-    // setTradeData(null);
   };
 
+  // 保存按钮的回调
   const handleSave = () => {
     fetchList();
   };
@@ -107,6 +107,8 @@ const DataPage: React.FC = () => {
     });
     return filterArr;
   };
+
+  // 筛选数据的fn
   const filterItem = (arr, attr, value) => {
     if (!arr) {
       return [];
@@ -124,6 +126,7 @@ const DataPage: React.FC = () => {
     return newArr;
   };
 
+  // 根据输入搜索的内容筛选数据
   useEffect(() => {
     let arr = filterDataList(allList);
     setDataList([...arr]);

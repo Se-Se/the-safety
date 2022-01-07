@@ -23,6 +23,7 @@ export default function AddModal(props) {
   const [doSave, setDoSave] = useState(false);
   const [preName, setPreName] = useState('');
 
+  // 初始化数据
   const init = () => {
     setTheName('');
     setTheStrategy('');
@@ -31,11 +32,13 @@ export default function AddModal(props) {
     setDoSave(false);
     setPreName('');
   };
+  // 关闭时的回调
   const close = () => {
     props.close();
     init();
   };
 
+  // textarea值变化的回调
   const handleTextAreaChange = (v, attr) => {
     if (attr === 'theStrategy') {
       setTheStrategy(v);
@@ -80,6 +83,7 @@ export default function AddModal(props) {
     return true;
   };
 
+  // 保存时执行的fn
   const handleSave = () => {
     setDoSave(true);
     if (theName.trim() === '') {
@@ -137,6 +141,8 @@ export default function AddModal(props) {
         });
     }
   };
+
+  // 数据变化时的回调
   useEffect(() => {
     if (props.theData && props.isEdit) {
       setTheName(props.theData.sceneName);
@@ -148,6 +154,8 @@ export default function AddModal(props) {
       setPreName(props.theData.sceneName);
     }
   }, [props.theData]);
+
+  // 返回dom节点
   const templageFn = () => {
     return (
       <>
@@ -160,7 +168,7 @@ export default function AddModal(props) {
             <Input
               className="w-330"
               value={theName}
-              onChange={(value, context) => {
+              onChange={value => {
                 setTheName(value);
               }}
               placeholder="请输入攻击场景名称"
